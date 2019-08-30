@@ -1,0 +1,8 @@
+{
+  "name": "Powered By Twilio",
+  "description": "What would it look like if you used Twilio?",
+  "repository": "",
+  "logo": "https://cdn.rawgit.com/heroku/node-js-getting-started/master/public/node.svg",
+  "keywords": ["node", "express", "heroku", "ejs"],
+  "image": "heroku/nodejs"
+}

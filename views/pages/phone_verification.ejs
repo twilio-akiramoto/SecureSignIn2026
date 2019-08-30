@@ -1,0 +1,71 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <% include ../partials/header.ejs %>
+  </head>
+
+  <body>
+    <% include ../partials/nav.ejs %>
+
+    <div class="container">
+      <div class="card bg-light">
+        <article class="card-body center-block" style="max-width: 400px;">
+          <h4 class="card-title mt-3 text-center">Secure Account Signups</h4>
+          <p class="text-center"><img alt="Brand" src="https://www.twilio.com/marketing/bundles/company/img/badges/red/twilio-badge-red.png" height="32px" /></p>
+
+          <form class="phone-verification-form" action="/preferences" method="get">
+            <div class="form-group">
+              <input type="text" id="full_name" name="full_name" class="form-control" placeholder="Full name" disabled value="<%- formData.full_name %>" />
+            </div>
+
+            <div class="form-group">
+              <input type="email" id="email_address" name="email_address" class="form-control" placeholder="Email address" disabled value="<%- formData.email_address %>" />
+            </div>
+
+            <div class="form-group">
+              <input type="phone" id="mobile_phone_number" name="mobile_phone_number" class="form-control" placeholder="Mobile phone number" disabled value="<%- formData.mobile_phone_number %>" />
+            </div>
+
+            <div class="form-group">
+              <input type="text" id="verification_code" name="verification_code" class="form-control" placeholder="Verification Code" required />
+            </div>
+
+            <!-- form-group// -->
+            <div class="form-group">
+              <button type="submit" class="btn btn-primary btn-block">Continue</button>
+            </div>
+          </form>
+        </article>
+      </div>
+    </div>
+    <script>
+      $(".phone-verification-form").bootstrapValidator({
+        live: "enabled",
+        feedbackIcons: {
+          valid: "glyphicon glyphicon-ok",
+          invalid: "glyphicon glyphicon-remove",
+          validating: "glyphicon glyphicon-refresh"
+        },
+        fields: {
+          verification_code: {
+            trigger: "blur",
+            message: "That's not the correct code",
+            validators: {
+              remote: {
+                url: "/verifyCheck",
+                data: function(validator) {
+                  return {
+                    mobile_number: validator.getFieldElements("mobile_phone_number").val()
+                  };
+                }
+              }
+            },
+            onSuccess: function(e) {
+              $(e.target).prop("disabled", true);
+            }
+          }
+        }
+      });
+    </script>
+  </body>
+</html>

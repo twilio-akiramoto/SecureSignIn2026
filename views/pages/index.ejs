@@ -1,0 +1,124 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <% include ../partials/header.ejs %>
+  </head>
+
+  <body>
+    <% include ../partials/nav.ejs %>
+
+    <div class="container">
+      <div class="card bg-light">
+        <article class="card-body center-block" style="max-width: 400px;">
+          <h4 class="card-title mt-3 text-center">Secure Account Signups</h4>
+          <p class="text-center"><img alt="Brand" src="https://www.twilio.com/marketing/bundles/company/img/badges/red/twilio-badge-red.png" height="32px" /></p>
+
+          <form class="sign-up-form" action="/phone_verification" method="post" id="signup-form">
+            <div class="form-group">
+              <input type="text" id="full_name" name="full_name" class="form-control" placeholder="Full name" required />
+            </div>
+
+            <div class="form-group">
+              <input type="email" id="email_address" name="email_address" class="form-control" placeholder="Email address" required />
+            </div>
+
+            <div class="form-group">
+              <input type="text" id="mobile_phone_number" name="mobile_phone_number" class="form-control" placeholder="Mobile phone number" required />
+            </div>
+
+            <div class="form-group">
+              <div id="input_errors"></div>
+            </div>
+
+            <!-- form-group// -->
+            <div class="form-group">
+              <button type="submit" class="btn btn-primary btn-block">Continue</button>
+            </div>
+          </form>
+        </article>
+      </div>
+    </div>
+    <script>
+      $(document).ready(function() {
+        localStorage.removeItem("19q3.full_name");
+        localStorage.removeItem("19q3.email_address");
+        localStorage.removeItem("19q3.mobile_phone_number");
+
+        // make our phone input field smarter and easier to use
+        var input = document.querySelector("#mobile_phone_number");
+        window.iti = window.intlTelInput(input, {
+          nationalMode: true,
+          utilsScript: "//cdnjs.cloudflare.com/ajax/libs/intl-tel-input/16.0.2/js/utils.js",
+          preferredCountries: ["us", "ca", "mx"]
+        });
+
+        $(".sign-up-form").bootstrapValidator({
+          message: "This value is not valid",
+          live: "enabled",
+          // container: "#input_errors",
+          feedbackIcons: {
+            valid: "glyphicon glyphicon-ok",
+            invalid: "glyphicon glyphicon-remove",
+            validating: "glyphicon glyphicon-refresh"
+          },
+          fields: {
+            full_name: {
+              message: "This does not seem like a valid name",
+              validators: {
+                notEmpty: {
+                  message: "Your name is required and cannot be empty"
+                },
+                stringLength: {
+                  min: 3,
+                  max: 100,
+                  message: "Your name must be more than 3 and less than 100 characters long"
+                },
+                regexp: {
+                  regexp: /^[a-zA-Z]+(([',. -][a-zA-Z ])?[a-zA-Z]*)*$/,
+                  message: "Your name looks like it has some invalid characters"
+                }
+              }
+            },
+            email_address: {
+              trigger: "blur",
+              validators: {
+                remote: {
+                  url: "/email_validation"
+                }
+              }
+            },
+            mobile_phone_number: {
+              trigger: "blur",
+              validators: {
+                remote: {
+                  url: "/lookup",
+                  data: function() {
+                    return {
+                      mobile_number: window.iti.getNumber(intlTelInputUtils.numberFormat.E164)
+                    };
+                  }
+                }
+              }
+            }
+          }
+        });
+
+        // make sure to submit the E.164 value rather than the raw entered value
+        $("#signup-form").submit(function(e) {
+          e.preventDefault();
+
+          let full_name = $("#full_name").val();
+          let email_address = $("#email_address").val();
+          let mobile_phone_number = window.iti.getNumber(intlTelInputUtils.numberFormat.E164);
+          $("#mobile_phone_number").val(mobile_phone_number);
+
+          localStorage.setItem("19q3.full_name", full_name);
+          localStorage.setItem("19q3.email_address", email_address);
+          localStorage.setItem("19q3.mobile_phone_number", mobile_phone_number);
+
+          this.submit();
+        });
+      });
+    </script>
+  </body>
+</html>
