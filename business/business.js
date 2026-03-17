@@ -1,5 +1,6 @@
 module.exports = {
   transformLookupData: function(lookupResponse) {
+    console.log(lookupResponse);
     if (lookupResponse.carrier.type === "mobile") {
       let message = `Thanks for providing your ${lookupResponse.carrier.name} phone number!`;
       return { "valid": true, "message": message, "data": lookupResponse };
@@ -23,6 +24,7 @@ module.exports = {
   },
 
   transformEmailValidationData: function(validationResponse) {
+    console.log(validationResponse);
     let data = validationResponse.data.result;
 
     if (data.verdict == "Valid") {
@@ -68,9 +70,47 @@ module.exports = {
   },
 
   transformVerificationCheckData: function(verificationCheckResponse) {
+    console.log(verificationCheckResponse);
     if (verificationCheckResponse.valid && verificationCheckResponse.status == "approved") {
       return { "valid": true, "message": "Success", "data": verificationCheckResponse };
     }
     return { "valid": false, "message": "Invalid Code", "data": verificationCheckResponse };
+  },
+
+  transformLookupV2Data: function(lookupResponse) {
+    console.log('Lookup v2 Response:', lookupResponse);
+
+    return {
+      valid: lookupResponse.valid || false,
+      phoneNumber: lookupResponse.phoneNumber || '',
+
+      lineType: {
+        carrierName: lookupResponse.lineTypeIntelligence?.carrier_name || 'Unknown',
+        phoneType: lookupResponse.lineTypeIntelligence?.type || 'Unknown'
+      },
+
+      identityMatch: {
+        firstName: lookupResponse.identityMatch?.first_name_match ?? null,
+        lastName: lookupResponse.identityMatch?.last_name_match ?? null,
+        address: lookupResponse.identityMatch?.address_match ?? null,
+        city: lookupResponse.identityMatch?.city_match ?? null,
+        state: lookupResponse.identityMatch?.state_match ?? null,
+        postalCode: lookupResponse.identityMatch?.postal_code_match ?? null,
+        country: lookupResponse.identityMatch?.country_match ?? null,
+        dateOfBirth: lookupResponse.identityMatch?.date_of_birth_match ?? null
+      },
+
+      simSwap: {
+        swappedInPeriod: lookupResponse.simSwap?.swapped_in_period || false,
+        lastSwapDate: lookupResponse.simSwap?.last_sim_swap_date || null,
+        period: lookupResponse.simSwap?.swapped_period || '30'
+      },
+
+      reassignedNumber: {
+        reassignedInPeriod: lookupResponse.reassignedNumber?.reassigned_in_period || false,
+        lastReassignedDate: lookupResponse.reassignedNumber?.last_reassigned_date || null,
+        period: lookupResponse.reassignedNumber?.reassigned_period || '30'
+      }
+    };
   }
 };
