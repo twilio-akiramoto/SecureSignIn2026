@@ -2,18 +2,72 @@ var twilio = require("../services/twilio");
 var sendgrid = require("../services/sendgrid");
 var business = require("../business/business");
 
+require('dotenv').config();
+
 var appRouter = function(app) {
   app.get("/", (req, res) => res.render("pages/index"));
 
   app.post("/phone_verification", (req, res) => {
-    twilio.verify(req.body.mobile_phone_number);
-    res.render("pages/phone_verification", {
-      formData: req.body
-    });
+    const userData = {
+      first_name: req.body.first_name,
+      last_name: req.body.last_name,
+      address: req.body.address,
+      city: req.body.city,
+      state: req.body.state,
+      postal_code: req.body.postal_code,
+      country: req.body.country,
+      date_of_birth: req.body.date_of_birth,
+      email_address: req.body.email_address,
+      mobile_phone_number: req.body.mobile_phone_number
+    };
+
+    // Call Twilio Lookup v2 with Identity Match
+    twilio.lookupV2(userData.mobile_phone_number, userData)
+      .then(lookupResponse => {
+        // Transform and store in session
+        userData.lookup_results = business.transformLookupV2Data(lookupResponse);
+        req.session.userData = userData;
+
+        // Send verification SMS (existing flow)
+        return twilio.verify(userData.mobile_phone_number);
+      })
+      .then(() => {
+        // Render phone verification page
+        res.render("pages/phone_verification", {
+          formData: userData
+        });
+      })
+      .catch(error => {
+        console.error('Lookup v2 error:', error);
+        // Even if lookup fails, continue with verification
+        req.session.userData = userData;
+        twilio.verify(userData.mobile_phone_number)
+          .then(() => {
+            res.render("pages/phone_verification", {
+              formData: userData
+            });
+          })
+          .catch(verifyError => {
+            console.error('Verification error:', verifyError);
+            res.status(500).send('Error processing signup');
+          });
+      });
   });
 
   app.get("/preferences", (req, res) => {
     res.render("pages/preferences");
+  });
+
+  app.get("/lookup-results", (req, res) => {
+    // Check if session data exists
+    if (!req.session.userData || !req.session.userData.lookup_results) {
+      return res.redirect("/");
+    }
+
+    res.render("pages/lookup_results", {
+      userData: req.session.userData,
+      lookupData: req.session.userData.lookup_results
+    });
   });
 
   app.get("/lookup", function(req, res) {
@@ -86,10 +140,10 @@ var appRouter = function(app) {
     let url = null;
     switch (req.params.template) {
       case "order-confirmation":
-        url = "https://handler.twilio.com/twiml/EHd7eafb019a8f1bd513c7be11ffd21a75";
+        url = "https://handler.twilio.com/twiml/EH10ddde0db8be18bb5e864f53fc45f1bf";
         break;
       case "fraud-alert":
-        url = "https://handler.twilio.com/twiml/EHb33d59a31e326ac0656d9574627ce694";
+        url = "https://handler.twilio.com/twiml/EH80b05ba088ad47b84e99f253563c602e";
         break;
     }
     if (url != null) {
