@@ -1,3 +1,4 @@
+require('dotenv').config();
 const client = require("twilio")(process.env.TWILIO_ACCOUNT_SID, process.env.TWILIO_AUTH_TOKEN);
 
 module.exports = {
@@ -77,6 +78,34 @@ module.exports = {
         })
         .then(response => {
           resolve(response.sid);
+        })
+        .catch(error => {
+          reject(error);
+        });
+    });
+  },
+
+  lookupV2: function(phone_number, userData) {
+    return new Promise((resolve, reject) => {
+      client.lookups.v2
+        .phoneNumbers(phone_number)
+        .fetch({
+          fields: ['line_type_intelligence', 'identity_match', 'sim_swap', 'reassigned_number'],
+          // Identity Match parameters
+          FirstName: userData.first_name,
+          LastName: userData.last_name,
+          AddressLine1: userData.address,
+          City: userData.city,
+          State: userData.state,
+          PostalCode: userData.postal_code,
+          CountryCode: userData.country,
+          DateOfBirth: userData.date_of_birth,
+          // SIM Swap and Reassigned Number parameters
+          simSwapPeriod: process.env.SIM_SWAP_PERIOD || '30',
+          reassignedNumberPeriod: process.env.REASSIGNED_NUMBER_PERIOD || '30'
+        })
+        .then(json => {
+          resolve(json);
         })
         .catch(error => {
           reject(error);
