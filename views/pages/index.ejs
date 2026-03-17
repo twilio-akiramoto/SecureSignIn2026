@@ -2,6 +2,7 @@
 <html>
   <head>
     <% include ../partials/header.ejs %>
+    <link rel="stylesheet" href="/css/address-autocomplete.css">
   </head>
 
   <body>
@@ -11,11 +12,44 @@
       <div class="card bg-light">
         <article class="card-body center-block" style="max-width: 400px;">
           <h4 class="card-title mt-3 text-center">Secure Account Signups</h4>
-          <p class="text-center"><img alt="Brand" src="https://www.twilio.com/marketing/bundles/company/img/badges/red/twilio-badge-red.png" height="32px" /></p>
+          <p class="text-center"><img alt="Brand" src="https://www.twilio.com/docs/static/company/img/logos/red/twilio-logo-red.ccf24b029.png" height="32px" /></p>
 
           <form class="sign-up-form" action="/phone_verification" method="post" id="signup-form">
             <div class="form-group">
-              <input type="text" id="full_name" name="full_name" class="form-control" placeholder="Full name" required />
+              <input type="text" id="first_name" name="first_name" class="form-control" placeholder="First name" required />
+            </div>
+
+            <div class="form-group">
+              <input type="text" id="last_name" name="last_name" class="form-control" placeholder="Last name" required />
+            </div>
+
+            <div class="form-group" style="position: relative;">
+              <input type="text" id="address" name="address" class="form-control" placeholder="Street address" required autocomplete="off" />
+              <div id="address-suggestions"></div>
+            </div>
+
+            <div class="form-group">
+              <input type="text" id="city" name="city" class="form-control" placeholder="City" required />
+            </div>
+
+            <div class="form-group">
+              <input type="text" id="state" name="state" class="form-control" placeholder="State" required />
+            </div>
+
+            <div class="form-group">
+              <input type="text" id="postal_code" name="postal_code" class="form-control" placeholder="Postal code" required />
+            </div>
+
+            <div class="form-group">
+              <select id="country" name="country" class="form-control" required>
+                <option value="US" selected>United States</option>
+                <option value="CA">Canada</option>
+                <option value="MX">Mexico</option>
+              </select>
+            </div>
+
+            <div class="form-group">
+              <input type="date" id="date_of_birth" name="date_of_birth" class="form-control" placeholder="Date of Birth" required />
             </div>
 
             <div class="form-group">
@@ -40,7 +74,14 @@
     </div>
     <script>
       $(document).ready(function() {
-        localStorage.removeItem("19q3.full_name");
+        localStorage.removeItem("19q3.first_name");
+        localStorage.removeItem("19q3.last_name");
+        localStorage.removeItem("19q3.address");
+        localStorage.removeItem("19q3.city");
+        localStorage.removeItem("19q3.state");
+        localStorage.removeItem("19q3.postal_code");
+        localStorage.removeItem("19q3.country");
+        localStorage.removeItem("19q3.date_of_birth");
         localStorage.removeItem("19q3.email_address");
         localStorage.removeItem("19q3.mobile_phone_number");
 
@@ -52,6 +93,9 @@
           preferredCountries: ["us", "ca", "mx"]
         });
 
+        // Initialize address autocomplete
+        initAddressAutocomplete();
+
         $(".sign-up-form").bootstrapValidator({
           message: "This value is not valid",
           live: "enabled",
@@ -62,20 +106,117 @@
             validating: "glyphicon glyphicon-refresh"
           },
           fields: {
-            full_name: {
-              message: "This does not seem like a valid name",
+            first_name: {
+              message: "This does not seem like a valid first name",
               validators: {
                 notEmpty: {
-                  message: "Your name is required and cannot be empty"
+                  message: "First name is required and cannot be empty"
                 },
                 stringLength: {
-                  min: 3,
-                  max: 100,
-                  message: "Your name must be more than 3 and less than 100 characters long"
+                  min: 2,
+                  max: 50,
+                  message: "First name must be between 2 and 50 characters"
                 },
                 regexp: {
                   regexp: /^[a-zA-Z]+(([',. -][a-zA-Z ])?[a-zA-Z]*)*$/,
-                  message: "Your name looks like it has some invalid characters"
+                  message: "First name contains invalid characters"
+                }
+              }
+            },
+            last_name: {
+              message: "This does not seem like a valid last name",
+              validators: {
+                notEmpty: {
+                  message: "Last name is required and cannot be empty"
+                },
+                stringLength: {
+                  min: 2,
+                  max: 50,
+                  message: "Last name must be between 2 and 50 characters"
+                },
+                regexp: {
+                  regexp: /^[a-zA-Z]+(([',. -][a-zA-Z ])?[a-zA-Z]*)*$/,
+                  message: "Last name contains invalid characters"
+                }
+              }
+            },
+            address: {
+              validators: {
+                notEmpty: {
+                  message: "Street address is required"
+                },
+                stringLength: {
+                  min: 5,
+                  max: 200,
+                  message: "Address must be between 5 and 200 characters"
+                }
+              }
+            },
+            city: {
+              validators: {
+                notEmpty: {
+                  message: "City is required"
+                },
+                stringLength: {
+                  min: 2,
+                  max: 100,
+                  message: "City must be between 2 and 100 characters"
+                }
+              }
+            },
+            state: {
+              validators: {
+                notEmpty: {
+                  message: "State is required"
+                },
+                stringLength: {
+                  min: 2,
+                  max: 50,
+                  message: "State must be at least 2 characters"
+                }
+              }
+            },
+            postal_code: {
+              validators: {
+                notEmpty: {
+                  message: "Postal code is required"
+                },
+                stringLength: {
+                  min: 3,
+                  max: 10,
+                  message: "Postal code must be between 3 and 10 characters"
+                }
+              }
+            },
+            country: {
+              validators: {
+                notEmpty: {
+                  message: "Country is required"
+                }
+              }
+            },
+            date_of_birth: {
+              validators: {
+                notEmpty: {
+                  message: "Date of birth is required"
+                },
+                date: {
+                  format: 'YYYY-MM-DD',
+                  message: 'Date of birth must be a valid date'
+                },
+                callback: {
+                  message: 'You must be at least 18 years old',
+                  callback: function(value, validator, $field) {
+                    if (!value) return false;
+                    const dob = new Date(value);
+                    const today = new Date();
+                    const age = today.getFullYear() - dob.getFullYear();
+                    const monthDiff = today.getMonth() - dob.getMonth();
+                    if (monthDiff < 0 || (monthDiff === 0 && today.getDate() < dob.getDate())) {
+                      return age - 1 >= 18;
+                    }
+                    return age >= 18;
+                  }
                 }
               }
             },
@@ -107,12 +248,26 @@
         $("#signup-form").submit(function(e) {
           e.preventDefault();
 
-          let full_name = $("#full_name").val();
+          let first_name = $("#first_name").val();
+          let last_name = $("#last_name").val();
+          let address = $("#address").val();
+          let city = $("#city").val();
+          let state = $("#state").val();
+          let postal_code = $("#postal_code").val();
+          let country = $("#country").val();
+          let date_of_birth = $("#date_of_birth").val();
           let email_address = $("#email_address").val();
           let mobile_phone_number = window.iti.getNumber(intlTelInputUtils.numberFormat.E164);
           $("#mobile_phone_number").val(mobile_phone_number);
 
-          localStorage.setItem("19q3.full_name", full_name);
+          localStorage.setItem("19q3.first_name", first_name);
+          localStorage.setItem("19q3.last_name", last_name);
+          localStorage.setItem("19q3.address", address);
+          localStorage.setItem("19q3.city", city);
+          localStorage.setItem("19q3.state", state);
+          localStorage.setItem("19q3.postal_code", postal_code);
+          localStorage.setItem("19q3.country", country);
+          localStorage.setItem("19q3.date_of_birth", date_of_birth);
           localStorage.setItem("19q3.email_address", email_address);
           localStorage.setItem("19q3.mobile_phone_number", mobile_phone_number);
 
@@ -120,5 +275,6 @@
         });
       });
     </script>
+    <script src="/js/address-autocomplete.js"></script>
   </body>
 </html>
