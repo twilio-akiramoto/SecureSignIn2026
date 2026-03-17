@@ -16,7 +16,7 @@
       <div class="card bg-light">
         <article class="card-body center-block" style="max-width: 800px;">
           <h4 class="card-title mt-3 text-center">Communications Preferences</h4>
-          <p class="text-center"><img alt="Brand" src="https://www.twilio.com/marketing/bundles/company/img/badges/red/twilio-badge-red.png" height="32px" /></p>
+          <p class="text-center"><img alt="Brand" src="https://www.twilio.com/docs/static/company/img/logos/red/twilio-logo-red.ccf24b029.png" height="32px" /></p>
           <br />
           <p class="lead">Thanks for signing up <span id="full_name"></span>! Setup and test your communications preferences here!</p>
 
@@ -92,16 +92,30 @@
               </form>
             </div>
           </div>
+          <div>
+              <hr>
+              <p class="lead">Now that we have our customer's preferences, SMS Messages can be sent using this app:</p>
+            <a href="https://marketingsmsapp-5875.twil.io/index.html">SMS Marketing Campaigns</a>
+          </div>
+          <div>
+            <hr>
+            <h4 class="text-center">Account Verification Details</h4>
+            <p class="lead text-center">View the verification results from your signup</p>
+            <div class="text-center">
+              <a href="/lookup-results" class="btn btn-info btn-lg">View Lookup Results</a>
+            </div>
+          </div>
         </article>
       </div>
     </div>
     <script>
       $(document).ready(function() {
-        let full_name = localStorage.getItem("19q3.full_name");
+        let first_name = localStorage.getItem("19q3.first_name");
+        let last_name = localStorage.getItem("19q3.last_name");
         let email_address = localStorage.getItem("19q3.email_address");
         let mobile_phone_number = localStorage.getItem("19q3.mobile_phone_number");
 
-        $("#full_name").html(full_name);
+        $("#full_name").html(first_name + " " + last_name);
 
         $("#order-confirmation").submit(function(e) {
           e.preventDefault();
