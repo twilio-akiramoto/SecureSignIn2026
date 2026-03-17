@@ -1,0 +1,171 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <% include ../partials/header.ejs %>
+    <style>
+      .score-high { color: #28a745; font-weight: bold; }
+      .score-medium { color: #ffc107; font-weight: bold; }
+      .score-low { color: #dc3545; font-weight: bold; }
+      .result-card { margin-bottom: 20px; }
+      .table { margin-bottom: 0; }
+    </style>
+  </head>
+
+  <body>
+    <% include ../partials/nav.ejs %>
+
+    <div class="container">
+      <div class="card bg-light">
+        <article class="card-body center-block" style="max-width: 800px;">
+          <h4 class="card-title mt-3 text-center">Account Verification Results</h4>
+          <p class="text-center">
+            <img alt="Brand" src="https://www.twilio.com/docs/static/company/img/logos/red/twilio-logo-red.ccf24b029.png" height="32px" />
+          </p>
+
+          <!-- Line Type Intelligence -->
+          <div class="card result-card">
+            <div class="card-header">
+              <h5>Line Type Intelligence</h5>
+            </div>
+            <div class="card-body">
+              <p><strong>Carrier Name:</strong> <%= lookupData.lineType.carrierName %></p>
+              <p><strong>Phone Type:</strong> <%= lookupData.lineType.phoneType %></p>
+            </div>
+          </div>
+
+          <!-- Identity Match Scores -->
+          <div class="card result-card">
+            <div class="card-header">
+              <h5>Identity Match Scores</h5>
+            </div>
+            <div class="card-body">
+              <table class="table">
+                <thead>
+                  <tr>
+                    <th>Field</th>
+                    <th>Match Score</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  <tr>
+                    <td>First Name</td>
+                    <td class="<%= getScoreClass(lookupData.identityMatch.firstName) %>">
+                      <%= formatScore(lookupData.identityMatch.firstName) %>
+                    </td>
+                  </tr>
+                  <tr>
+                    <td>Last Name</td>
+                    <td class="<%= getScoreClass(lookupData.identityMatch.lastName) %>">
+                      <%= formatScore(lookupData.identityMatch.lastName) %>
+                    </td>
+                  </tr>
+                  <tr>
+                    <td>Address</td>
+                    <td class="<%= getScoreClass(lookupData.identityMatch.address) %>">
+                      <%= formatScore(lookupData.identityMatch.address) %>
+                    </td>
+                  </tr>
+                  <tr>
+                    <td>City</td>
+                    <td class="<%= getScoreClass(lookupData.identityMatch.city) %>">
+                      <%= formatScore(lookupData.identityMatch.city) %>
+                    </td>
+                  </tr>
+                  <tr>
+                    <td>State</td>
+                    <td class="<%= getScoreClass(lookupData.identityMatch.state) %>">
+                      <%= formatScore(lookupData.identityMatch.state) %>
+                    </td>
+                  </tr>
+                  <tr>
+                    <td>Postal Code</td>
+                    <td class="<%= getScoreClass(lookupData.identityMatch.postalCode) %>">
+                      <%= formatScore(lookupData.identityMatch.postalCode) %>
+                    </td>
+                  </tr>
+                  <tr>
+                    <td>Country</td>
+                    <td class="<%= getScoreClass(lookupData.identityMatch.country) %>">
+                      <%= formatScore(lookupData.identityMatch.country) %>
+                    </td>
+                  </tr>
+                  <tr>
+                    <td>Date of Birth</td>
+                    <td class="<%= getScoreClass(lookupData.identityMatch.dateOfBirth) %>">
+                      <%= formatScore(lookupData.identityMatch.dateOfBirth) %>
+                    </td>
+                  </tr>
+                </tbody>
+              </table>
+            </div>
+          </div>
+
+          <!-- SIM Swap Check -->
+          <div class="card result-card">
+            <div class="card-header">
+              <h5>SIM Swap Check (Last <%= lookupData.simSwap.period %> Days)</h5>
+            </div>
+            <div class="card-body">
+              <p><strong>SIM Swapped in Period:</strong>
+                <% if (lookupData.simSwap.swappedInPeriod) { %>
+                  <span class="text-danger">&#10007; Yes</span>
+                <% } else { %>
+                  <span class="text-success">&#10003; No</span>
+                <% } %>
+              </p>
+              <p><strong>Last SIM Swap Date:</strong>
+                <%= formatDate(lookupData.simSwap.lastSwapDate) %>
+              </p>
+            </div>
+          </div>
+
+          <!-- Reassigned Number Check -->
+          <div class="card result-card">
+            <div class="card-header">
+              <h5>Reassigned Number Check (Last <%= lookupData.reassignedNumber.period %> Days)</h5>
+            </div>
+            <div class="card-body">
+              <p><strong>Number Reassigned in Period:</strong>
+                <% if (lookupData.reassignedNumber.reassignedInPeriod) { %>
+                  <span class="text-danger">&#10007; Yes</span>
+                <% } else { %>
+                  <span class="text-success">&#10003; No</span>
+                <% } %>
+              </p>
+              <p><strong>Last Reassignment Date:</strong>
+                <%= formatDate(lookupData.reassignedNumber.lastReassignedDate) %>
+              </p>
+            </div>
+          </div>
+
+          <div class="text-center">
+            <a href="/preferences" class="btn btn-primary btn-lg">Back to Preferences</a>
+          </div>
+        </article>
+      </div>
+    </div>
+
+    <%
+      function getScoreClass(score) {
+        if (score === null) return '';
+        if (score >= 80) return 'score-high';
+        if (score >= 50) return 'score-medium';
+        return 'score-low';
+      }
+
+      function formatScore(score) {
+        return score !== null ? score + '/100' : 'Not Available';
+      }
+
+      function formatDate(dateString) {
+        if (!dateString) return 'N/A';
+        const date = new Date(dateString);
+        return date.toLocaleDateString('en-US', {
+          year: 'numeric',
+          month: 'long',
+          day: 'numeric'
+        });
+      }
+    %>
+  </body>
+</html>
