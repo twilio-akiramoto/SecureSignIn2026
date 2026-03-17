@@ -11,11 +11,39 @@
       <div class="card bg-light">
         <article class="card-body center-block" style="max-width: 400px;">
           <h4 class="card-title mt-3 text-center">Secure Account Signups</h4>
-          <p class="text-center"><img alt="Brand" src="https://www.twilio.com/marketing/bundles/company/img/badges/red/twilio-badge-red.png" height="32px" /></p>
+          <p class="text-center"><img alt="Brand" src="https://www.twilio.com/docs/static/company/img/logos/red/twilio-logo-red.ccf24b029.png" height="32px" /></p>
 
           <form class="phone-verification-form" action="/preferences" method="get">
             <div class="form-group">
-              <input type="text" id="full_name" name="full_name" class="form-control" placeholder="Full name" disabled value="<%- formData.full_name %>" />
+              <input type="text" id="first_name" name="first_name" class="form-control" placeholder="First name" disabled value="<%- formData.first_name %>" />
+            </div>
+
+            <div class="form-group">
+              <input type="text" id="last_name" name="last_name" class="form-control" placeholder="Last name" disabled value="<%- formData.last_name %>" />
+            </div>
+
+            <div class="form-group">
+              <input type="text" id="address" name="address" class="form-control" placeholder="Address" disabled value="<%- formData.address %>" />
+            </div>
+
+            <div class="form-group">
+              <input type="text" id="city" name="city" class="form-control" placeholder="City" disabled value="<%- formData.city %>" />
+            </div>
+
+            <div class="form-group">
+              <input type="text" id="state" name="state" class="form-control" placeholder="State" disabled value="<%- formData.state %>" />
+            </div>
+
+            <div class="form-group">
+              <input type="text" id="postal_code" name="postal_code" class="form-control" placeholder="Postal Code" disabled value="<%- formData.postal_code %>" />
+            </div>
+
+            <div class="form-group">
+              <input type="text" id="country" name="country" class="form-control" placeholder="Country" disabled value="<%- formData.country %>" />
+            </div>
+
+            <div class="form-group">
+              <input type="text" id="date_of_birth" name="date_of_birth" class="form-control" placeholder="Date of Birth" disabled value="<%- formData.date_of_birth %>" />
             </div>
 
             <div class="form-group">
