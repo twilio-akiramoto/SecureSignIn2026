@@ -77,6 +77,21 @@ module.exports = {
     return { "valid": false, "message": "Invalid Code", "data": verificationCheckResponse };
   },
 
+  convertMatchScoreToNumber: function(matchString) {
+    if (matchString === null || matchString === undefined) return null;
+
+    switch (matchString) {
+      case 'exact_match':
+        return 100;
+      case 'partial_match':
+        return 50;
+      case 'no_match':
+        return 0;
+      default:
+        return null;
+    }
+  },
+
   transformLookupV2Data: function(lookupResponse) {
     console.log('Lookup v2 Response:', lookupResponse);
 
@@ -90,14 +105,14 @@ module.exports = {
       },
 
       identityMatch: {
-        firstName: lookupResponse.identityMatch?.first_name_match ?? null,
-        lastName: lookupResponse.identityMatch?.last_name_match ?? null,
-        address: lookupResponse.identityMatch?.address_match ?? null,
-        city: lookupResponse.identityMatch?.city_match ?? null,
-        state: lookupResponse.identityMatch?.state_match ?? null,
-        postalCode: lookupResponse.identityMatch?.postal_code_match ?? null,
-        country: lookupResponse.identityMatch?.country_match ?? null,
-        dateOfBirth: lookupResponse.identityMatch?.date_of_birth_match ?? null
+        firstName: this.convertMatchScoreToNumber(lookupResponse.identityMatch?.first_name_match),
+        lastName: this.convertMatchScoreToNumber(lookupResponse.identityMatch?.last_name_match),
+        address: this.convertMatchScoreToNumber(lookupResponse.identityMatch?.address_match),
+        city: this.convertMatchScoreToNumber(lookupResponse.identityMatch?.city_match),
+        state: this.convertMatchScoreToNumber(lookupResponse.identityMatch?.state_match),
+        postalCode: this.convertMatchScoreToNumber(lookupResponse.identityMatch?.postal_code_match),
+        country: this.convertMatchScoreToNumber(lookupResponse.identityMatch?.country_match),
+        dateOfBirth: this.convertMatchScoreToNumber(lookupResponse.identityMatch?.date_of_birth_match)
       },
 
       simSwap: {
