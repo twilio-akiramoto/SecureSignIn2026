@@ -423,7 +423,7 @@ Add after communication preferences section (around line 94):
         <article class="card-body center-block" style="max-width: 800px;">
           <h4 class="card-title mt-3 text-center">Account Verification Results</h4>
           <p class="text-center">
-            <img alt="Brand" src="https://www.twilio.com/docs/static/company/img/logos/red/twilio-logo-red.ccf24b029.png" height="32px" />
+            <img alt="Brand" src="https://agent-logos.storage.googleapis.com/_/m0y6xq7eUCmIpHFSvvVA0ALc" height="32px" />
           </p>
 
           <!-- Line Type Intelligence -->

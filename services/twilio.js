@@ -4,7 +4,7 @@ const client = require("twilio")(process.env.TWILIO_ACCOUNT_SID, process.env.TWI
 module.exports = {
   lookup: function(phone_number) {
     return new Promise((resolve, reject) => {
-      client.lookups
+      client.lookups.v1
         .phoneNumbers(phone_number)
         .fetch({ type: ["carrier"] })
         .then(json => {
