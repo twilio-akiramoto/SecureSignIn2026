@@ -107,11 +107,11 @@ module.exports = {
       identityMatch: {
         firstName: this.convertMatchScoreToNumber(lookupResponse.identityMatch?.first_name_match),
         lastName: this.convertMatchScoreToNumber(lookupResponse.identityMatch?.last_name_match),
-        address: this.convertMatchScoreToNumber(lookupResponse.identityMatch?.address_match),
+        address: this.convertMatchScoreToNumber(lookupResponse.identityMatch?.address_lines_match),
         city: this.convertMatchScoreToNumber(lookupResponse.identityMatch?.city_match),
         state: this.convertMatchScoreToNumber(lookupResponse.identityMatch?.state_match),
         postalCode: this.convertMatchScoreToNumber(lookupResponse.identityMatch?.postal_code_match),
-        country: this.convertMatchScoreToNumber(lookupResponse.identityMatch?.country_match),
+        country: this.convertMatchScoreToNumber(lookupResponse.identityMatch?.address_country_match),
         dateOfBirth: this.convertMatchScoreToNumber(lookupResponse.identityMatch?.date_of_birth_match)
       },
 

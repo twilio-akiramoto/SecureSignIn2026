@@ -87,20 +87,21 @@ module.exports = {
 
   lookupV2: function(phone_number, userData) {
     return new Promise((resolve, reject) => {
+      // Convert date from YYYY-MM-DD to YYYYMMDD format
+      const dateOfBirth = userData.date_of_birth ? userData.date_of_birth.replace(/-/g, '') : undefined;
+
       client.lookups.v2
         .phoneNumbers(phone_number)
         .fetch({
-          fields: ['line_type_intelligence', 'identity_match', 'sim_swap', 'reassigned_number'],
-          // Identity Match parameters
-          FirstName: userData.first_name,
-          LastName: userData.last_name,
-          AddressLine1: userData.address,
-          City: userData.city,
-          State: userData.state,
-          PostalCode: userData.postal_code,
-          CountryCode: userData.country,
-          DateOfBirth: userData.date_of_birth,
-          // SIM Swap and Reassigned Number parameters
+          fields: 'line_type_intelligence,identity_match,sim_swap,reassigned_number',
+          firstName: userData.first_name,
+          lastName: userData.last_name,
+          addressLine1: userData.address,
+          city: userData.city,
+          state: userData.state,
+          postalCode: userData.postal_code,
+          countryCode: userData.country,
+          dateOfBirth: dateOfBirth,
           simSwapPeriod: process.env.SIM_SWAP_PERIOD || '30',
           reassignedNumberPeriod: process.env.REASSIGNED_NUMBER_PERIOD || '30'
         })
