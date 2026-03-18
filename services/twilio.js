@@ -18,7 +18,7 @@ module.exports = {
 
   verify: function(phone_number) {
     return new Promise((resolve, reject) => {
-      client.verify
+      client.verify.v2
         .services(process.env.TWILIO_VERIFY_SERVICE_SID)
         .verifications.create({
           to: phone_number,
@@ -36,7 +36,7 @@ module.exports = {
   verifyCheck: function(phone_number, code) {
     return new Promise((resolve, reject) => {
       try {
-        client.verify
+        client.verify.v2
           .services(process.env.TWILIO_VERIFY_SERVICE_SID)
           .verificationChecks.create({ to: phone_number, code: code })
           .then(verification_check => {
