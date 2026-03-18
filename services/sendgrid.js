@@ -24,7 +24,7 @@ module.exports = {
       sgAPI
         .post("/validations/email", {
           email: email_address,
-          source: "Justins Q3 SPIFF Demo"
+          source: "Sign In Demo"
         })
         .then(response => {
           resolve(response);
