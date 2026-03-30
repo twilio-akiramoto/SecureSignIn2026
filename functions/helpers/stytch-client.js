@@ -16,6 +16,13 @@ async function validateSession(context, sessionToken) {
   const projectId = context.STYTCH_PROJECT_ID;
   const secret = context.STYTCH_SECRET;
 
+  if (!projectId || !secret) {
+    throw new Error('Stytch credentials not configured (STYTCH_PROJECT_ID, STYTCH_SECRET)');
+  }
+  if (!sessionToken) {
+    throw new Error('sessionToken is required');
+  }
+
   try {
     const response = await axios.post(
       `https://api.stytch.com/v1/sessions/authenticate`,
@@ -27,13 +34,14 @@ async function validateSession(context, sessionToken) {
         auth: {
           username: projectId,
           password: secret
-        }
+        },
+        timeout: 10000
       }
     );
 
     return response.data;
   } catch (error) {
-    console.error('Stytch session validation error:', error);
+    console.error('Stytch session validation error:', error.message);
     throw error;
   }
 }
@@ -48,6 +56,13 @@ async function getDeviceFingerprint(context, fingerprintId) {
   const projectId = context.STYTCH_PROJECT_ID;
   const secret = context.STYTCH_SECRET;
 
+  if (!projectId || !secret) {
+    throw new Error('Stytch credentials not configured (STYTCH_PROJECT_ID, STYTCH_SECRET)');
+  }
+  if (!fingerprintId) {
+    throw new Error('fingerprintId is required');
+  }
+
   try {
     const response = await axios.get(
       `https://api.stytch.com/v1/device_fingerprints/${fingerprintId}`,
@@ -55,13 +70,14 @@ async function getDeviceFingerprint(context, fingerprintId) {
         auth: {
           username: projectId,
           password: secret
-        }
+        },
+        timeout: 10000
       }
     );
 
     return response.data;
   } catch (error) {
-    console.error('Stytch fingerprint fetch error:', error);
+    console.error('Stytch fingerprint fetch error:', error.message);
     throw error;
   }
 }
