@@ -9,31 +9,37 @@
  * @returns {Object} - { valid: boolean, message: string, data: Object }
  */
 function transformLookupData(lookupResponse) {
-  console.log(lookupResponse);
+  if (!lookupResponse?.carrier) {
+    return { valid: false, message: 'Unable to determine carrier information.', data: lookupResponse };
+  }
 
-  if (lookupResponse.carrier.type === 'mobile') {
-    let message = `Thanks for providing your ${lookupResponse.carrier.name} phone number!`;
-    return { valid: true, message: message, data: lookupResponse };
+  // Create shallow copy to avoid mutating input
+  const carrier = { ...lookupResponse.carrier };
+  const response = { ...lookupResponse, carrier };
+
+  if (carrier.type === 'mobile') {
+    let message = `Thanks for providing your ${carrier.name} phone number!`;
+    return { valid: true, message: message, data: response };
   } else {
     // Normalize carrier names
-    switch (lookupResponse.carrier.name) {
+    switch (carrier.name) {
       case 'Google (Grand Central) BWI - Bandwidth.com - SVR':
-        lookupResponse.carrier.name = 'Google Voice';
+        carrier.name = 'Google Voice';
         break;
       case 'AT&T - PSTN':
-        lookupResponse.carrier.name = 'AT&T';
+        carrier.name = 'AT&T';
         break;
       case 'T-Mobile USA, Inc.':
-        lookupResponse.carrier.name = 'T-Mobile';
+        carrier.name = 'T-Mobile';
         break;
     }
 
-    if (lookupResponse.carrier.type === 'voip') {
-      lookupResponse.carrier.type = 'VoIP';
+    if (carrier.type === 'voip') {
+      carrier.type = 'VoIP';
     }
 
-    let message = `You provided a ${lookupResponse.carrier.type} number from ${lookupResponse.carrier.name}! Please enter your cell number.`;
-    return { valid: false, message: message, data: lookupResponse };
+    let message = `You provided a ${carrier.type} number from ${carrier.name}! Please enter your cell number.`;
+    return { valid: false, message: message, data: response };
   }
 }
 
@@ -43,7 +49,10 @@ function transformLookupData(lookupResponse) {
  * @returns {Object} - { valid: boolean, message: string, data: Object }
  */
 function transformEmailValidationData(validationResponse) {
-  console.log(validationResponse);
+  if (!validationResponse?.data?.result) {
+    return { valid: false, message: 'Unable to validate email address.', data: null };
+  }
+
   let data = validationResponse.data.result;
 
   if (data.verdict === 'Valid') {
@@ -104,7 +113,6 @@ function transformEmailValidationData(validationResponse) {
  * @returns {Object} - { valid: boolean, message: string, data: Object }
  */
 function transformVerificationCheckData(verificationCheckResponse) {
-  console.log(verificationCheckResponse);
 
   if (verificationCheckResponse.valid && verificationCheckResponse.status === 'approved') {
     return { valid: true, message: 'Success', data: verificationCheckResponse };
@@ -139,8 +147,6 @@ function convertMatchScoreToNumber(matchString) {
  * @returns {Object} - Structured lookup data
  */
 function transformLookupV2Data(lookupResponse) {
-  console.log('Lookup v2 Response:', lookupResponse);
-
   return {
     valid: lookupResponse.valid || false,
     phoneNumber: lookupResponse.phoneNumber || '',
