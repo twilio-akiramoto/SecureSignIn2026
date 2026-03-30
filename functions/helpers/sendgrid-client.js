@@ -15,21 +15,24 @@ async function validateEmail(context, emailAddress) {
   const apiKey = context.SENDGRID_VALIDATION_API_KEY;
 
   try {
-    const response = await axios.get(
+    const response = await axios.post(
       `https://api.sendgrid.com/v3/validations/email`,
       {
+        email: emailAddress,
+        source: 'Enhanced SignIn 2026'
+      },
+      {
         headers: {
-          'Authorization': `Bearer ${apiKey}`
+          'Authorization': `Bearer ${apiKey}`,
+          'Content-Type': 'application/json'
         },
-        params: {
-          email: emailAddress
-        }
+        timeout: 10000
       }
     );
 
     return response;
   } catch (error) {
-    console.error('SendGrid validation error:', error);
+    console.error('SendGrid validation error:', error.message);
     throw error;
   }
 }
@@ -51,7 +54,7 @@ async function sendEmail(context, toEmail, templateId) {
       }
     ],
     from: {
-      email: 'noreply@example.com', // Update with your verified sender
+      email: context.SENDGRID_FROM_EMAIL || 'noreply@example.com',
       name: 'Secure Account Signups'
     },
     template_id: templateId
@@ -65,13 +68,14 @@ async function sendEmail(context, toEmail, templateId) {
         headers: {
           'Authorization': `Bearer ${apiKey}`,
           'Content-Type': 'application/json'
-        }
+        },
+        timeout: 10000
       }
     );
 
     return { success: true, statusCode: response.status };
   } catch (error) {
-    console.error('SendGrid send error:', error);
+    console.error('SendGrid send error:', error.message);
     throw error;
   }
 }
