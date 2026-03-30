@@ -246,8 +246,11 @@
         $('#session-created').text(formatTimestamp(session.created_at));
         $('#session-accessed').text(formatTimestamp(session.last_accessed_at));
       } else {
-        // Hide session card if no session data
-        $('#session-card').hide();
+        // Show N/A for all fields when session data is missing
+        $('#session-id').text('N/A');
+        $('#session-status').text('N/A');
+        $('#session-created').text('N/A');
+        $('#session-accessed').text('N/A');
       }
     });
   </script>
