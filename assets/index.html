@@ -387,21 +387,44 @@
           sessionStorage.setItem('19q3.' + key, formData[key]);
         });
 
-        // Send verification code via /verify endpoint
-        $.get('/verify', {
-          mobile_number: formData.mobile_phone_number
+        // Call Lookup v2 API first to get identity match data
+        $.get('/lookup-v2', {
+          mobile_number: formData.mobile_phone_number,
+          first_name: formData.first_name,
+          last_name: formData.last_name,
+          address: formData.address,
+          city: formData.city,
+          state: formData.state,
+          postal_code: formData.postal_code,
+          date_of_birth: formData.date_of_birth
         })
-        .done(function(response) {
-          if (response.valid) {
-            // Verification sent successfully, redirect to verification page
-            window.location.href = '/phone-verification';
+        .done(function(lookupResponse) {
+          if (lookupResponse.success) {
+            // Store lookup data for results page
+            sessionStorage.setItem('19q3.lookupData', JSON.stringify(lookupResponse.data));
+
+            // Now send verification code via /verify endpoint
+            $.get('/verify', {
+              mobile_number: formData.mobile_phone_number
+            })
+            .done(function(verifyResponse) {
+              if (verifyResponse.valid) {
+                // Verification sent successfully, redirect to verification page
+                window.location.href = '/phone-verification';
+              } else {
+                // Show error message
+                alert('Error sending verification code: ' + verifyResponse.message);
+              }
+            })
+            .fail(function() {
+              alert('Failed to send verification code. Please try again.');
+            });
           } else {
-            // Show error message
-            alert('Error sending verification code: ' + response.message);
+            alert('Error validating phone number: ' + lookupResponse.message);
           }
         })
         .fail(function() {
-          alert('Failed to send verification code. Please try again.');
+          alert('Failed to validate phone number. Please try again.');
         });
       });
     });
