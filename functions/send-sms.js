@@ -25,7 +25,7 @@ exports.handler = async function(context, event, callback) {
     if (event.sms_type === 'order-confirmation') {
       message = 'Your order has been confirmed!';
     } else if (event.sms_type === 'fraud-alert') {
-      message = 'Fraud alert: suspicious activity detected on your account.';
+      message = 'Fraud alert test: you will receive alerts from this number.';
     } else {
       throw new Error(`Invalid sms_type: ${event.sms_type}`);
     }
