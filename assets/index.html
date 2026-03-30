@@ -203,7 +203,9 @@
       window.iti = window.intlTelInput(input, {
         nationalMode: true,
         utilsScript: '//cdnjs.cloudflare.com/ajax/libs/intl-tel-input/16.0.2/js/utils.js',
-        preferredCountries: ['us', 'ca', 'mx']
+        initialCountry: 'us',
+        onlyCountries: ['us'],
+        allowDropdown: false
       });
 
       // Initialize address autocomplete
