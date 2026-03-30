@@ -153,14 +153,14 @@
     $(document).ready(function() {
       // Helper functions
       function getScoreClass(score) {
-        if (score === null || score === undefined) return '';
+        if (score === null || score === undefined) return 'score-low';
         if (score >= 80) return 'score-high';
         if (score >= 50) return 'score-medium';
         return 'score-low';
       }
 
       function formatScore(score) {
-        return (score !== null && score !== undefined) ? score + '/100' : 'Not Available';
+        return (score !== null && score !== undefined) ? score + '/100' : '0/100';
       }
 
       function formatDate(dateString) {
