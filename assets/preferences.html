@@ -188,37 +188,91 @@
   <script>
     $(document).ready(function() {
       // Load user data from sessionStorage (security improvement from localStorage)
-      let first_name = sessionStorage.getItem("19q3.first_name");
-      let last_name = sessionStorage.getItem("19q3.last_name");
-      let email_address = sessionStorage.getItem("19q3.email_address");
-      let mobile_phone_number = sessionStorage.getItem("19q3.mobile_phone_number");
+      let first_name = sessionStorage.getItem("19q3.first_name") || "";
+      let last_name = sessionStorage.getItem("19q3.last_name") || "";
+      let email_address = sessionStorage.getItem("19q3.email_address") || "";
+      let mobile_phone_number = sessionStorage.getItem("19q3.mobile_phone_number") || "";
 
-      $("#full_name").html(first_name + " " + last_name);
+      // If critical data is missing, redirect to signup
+      if (!first_name || !last_name) {
+        window.location.href = "/";
+        return;
+      }
+
+      $("#full_name").text(first_name + " " + last_name);
 
       $("#order-confirmation").submit(function(e) {
         e.preventDefault();
 
         let email = $("#oc-email").is(":checked");
-        if (email) $.get("/email/order-confirmation/" + email_address);
+        if (email) {
+          $.get("/email/order-confirmation/" + email_address)
+            .done(function() {
+              alert("Email sent successfully!");
+            })
+            .fail(function() {
+              alert("Failed to send email. Please try again.");
+            });
+        }
 
         let sms = $("#oc-sms").is(":checked");
-        if (sms) $.get("/sms/order-confirmation/" + mobile_phone_number);
+        if (sms) {
+          $.get("/sms/order-confirmation/" + mobile_phone_number)
+            .done(function() {
+              alert("SMS sent successfully!");
+            })
+            .fail(function() {
+              alert("Failed to send SMS. Please try again.");
+            });
+        }
 
         let call = $("#oc-call").is(":checked");
-        if (call) $.get("/call/order-confirmation/" + mobile_phone_number);
+        if (call) {
+          $.get("/call/order-confirmation/" + mobile_phone_number)
+            .done(function() {
+              alert("Call initiated successfully!");
+            })
+            .fail(function() {
+              alert("Failed to initiate call. Please try again.");
+            });
+        }
       });
 
       $("#fraud-alert").submit(function(e) {
         e.preventDefault();
 
         let email = $("#fa-email").is(":checked");
-        if (email) $.get("/email/fraud-alert/" + email_address);
+        if (email) {
+          $.get("/email/fraud-alert/" + email_address)
+            .done(function() {
+              alert("Email sent successfully!");
+            })
+            .fail(function() {
+              alert("Failed to send email. Please try again.");
+            });
+        }
 
         let sms = $("#fa-sms").is(":checked");
-        if (sms) $.get("/sms/fraud-alert/" + mobile_phone_number);
+        if (sms) {
+          $.get("/sms/fraud-alert/" + mobile_phone_number)
+            .done(function() {
+              alert("SMS sent successfully!");
+            })
+            .fail(function() {
+              alert("Failed to send SMS. Please try again.");
+            });
+        }
 
         let call = $("#fa-call").is(":checked");
-        if (call) $.get("/call/fraud-alert/" + mobile_phone_number);
+        if (call) {
+          $.get("/call/fraud-alert/" + mobile_phone_number)
+            .done(function() {
+              alert("Call initiated successfully!");
+            })
+            .fail(function() {
+              alert("Failed to initiate call. Please try again.");
+            });
+        }
       });
     });
   </script>
