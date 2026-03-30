@@ -127,11 +127,13 @@
                 url: '/verify-check',
                 data: function(validator) {
                   return {
-                    mobile_number: $('#mobile_phone_number').val(),
-                    verification_code: $('#verification_code').val()
+                    mobile_number: $('#mobile_phone_number').val()
                   };
                 }
               }
+            },
+            onSuccess: function(e) {
+              $(e.target).prop("disabled", true);
             }
           }
         }
