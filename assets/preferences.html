@@ -206,7 +206,10 @@
 
         let email = $("#oc-email").is(":checked");
         if (email) {
-          $.get("/email/order-confirmation/" + email_address)
+          $.get("/send-email", {
+            email_type: "order-confirmation",
+            email_address: email_address
+          })
             .done(function() {
               alert("Email sent successfully!");
             })
@@ -217,7 +220,10 @@
 
         let sms = $("#oc-sms").is(":checked");
         if (sms) {
-          $.get("/sms/order-confirmation/" + mobile_phone_number)
+          $.get("/send-sms", {
+            sms_type: "order-confirmation",
+            phone_number: mobile_phone_number
+          })
             .done(function() {
               alert("SMS sent successfully!");
             })
@@ -228,7 +234,10 @@
 
         let call = $("#oc-call").is(":checked");
         if (call) {
-          $.get("/call/order-confirmation/" + mobile_phone_number)
+          $.get("/send-call", {
+            call_type: "order-confirmation",
+            phone_number: mobile_phone_number
+          })
             .done(function() {
               alert("Call initiated successfully!");
             })
@@ -243,7 +252,10 @@
 
         let email = $("#fa-email").is(":checked");
         if (email) {
-          $.get("/email/fraud-alert/" + email_address)
+          $.get("/send-email", {
+            email_type: "fraud-alert",
+            email_address: email_address
+          })
             .done(function() {
               alert("Email sent successfully!");
             })
@@ -254,7 +266,10 @@
 
         let sms = $("#fa-sms").is(":checked");
         if (sms) {
-          $.get("/sms/fraud-alert/" + mobile_phone_number)
+          $.get("/send-sms", {
+            sms_type: "fraud-alert",
+            phone_number: mobile_phone_number
+          })
             .done(function() {
               alert("SMS sent successfully!");
             })
@@ -265,7 +280,10 @@
 
         let call = $("#fa-call").is(":checked");
         if (call) {
-          $.get("/call/fraud-alert/" + mobile_phone_number)
+          $.get("/send-call", {
+            call_type: "fraud-alert",
+            phone_number: mobile_phone_number
+          })
             .done(function() {
               alert("Call initiated successfully!");
             })
