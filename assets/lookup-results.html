@@ -1,0 +1,267 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Account Verification Results - Secure Account Signups</title>
+
+  <!-- Bootstrap 3 -->
+  <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/css/bootstrap.min.css">
+
+  <style>
+    body {
+      padding-top: 20px;
+    }
+    .score-high { color: #28a745; font-weight: bold; }
+    .score-medium { color: #ffc107; font-weight: bold; }
+    .score-low { color: #dc3545; font-weight: bold; }
+    .result-card { margin-bottom: 20px; }
+    .table { margin-bottom: 0; }
+    .card {
+      box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+      border-radius: 8px;
+      margin-bottom: 20px;
+    }
+    .card-body {
+      padding: 30px;
+    }
+    .card-header {
+      background-color: #f5f5f5;
+      padding: 15px;
+      border-bottom: 1px solid #ddd;
+      border-top-left-radius: 8px;
+      border-top-right-radius: 8px;
+    }
+    .card-header h5 {
+      margin: 0;
+      font-weight: bold;
+    }
+  </style>
+</head>
+
+<body>
+  <nav class="navbar navbar-inverse">
+    <div class="container">
+      <div class="navbar-header">
+        <a class="navbar-brand" href="/" style="padding: 0">
+          <img alt="Brand" src="https://agent-logos.storage.googleapis.com/_/m0y6xq7eUCmIpHFSvvVA0ALc" height="50px" />
+        </a>
+      </div>
+    </div>
+  </nav>
+
+  <div class="container">
+    <div class="card bg-light">
+      <article class="card-body center-block" style="max-width: 800px;">
+        <h4 class="card-title mt-3 text-center">Account Verification Results</h4>
+        <p class="text-center">
+          <img alt="Brand" src="https://agent-logos.storage.googleapis.com/_/m0y6xq7eUCmIpHFSvvVA0ALc" height="32px" />
+        </p>
+
+        <!-- Line Type Intelligence -->
+        <div class="card result-card">
+          <div class="card-header">
+            <h5>Line Type Intelligence</h5>
+          </div>
+          <div class="card-body">
+            <p><strong>Carrier Name:</strong> <span id="carrier-name">Loading...</span></p>
+            <p><strong>Phone Type:</strong> <span id="phone-type">Loading...</span></p>
+          </div>
+        </div>
+
+        <!-- Identity Match Scores -->
+        <div class="card result-card">
+          <div class="card-header">
+            <h5>Identity Match Scores</h5>
+          </div>
+          <div class="card-body">
+            <table class="table">
+              <thead>
+                <tr>
+                  <th>Field</th>
+                  <th>Match Score</th>
+                </tr>
+              </thead>
+              <tbody>
+                <tr>
+                  <td>First Name</td>
+                  <td id="score-first-name">Loading...</td>
+                </tr>
+                <tr>
+                  <td>Last Name</td>
+                  <td id="score-last-name">Loading...</td>
+                </tr>
+                <tr>
+                  <td>Address</td>
+                  <td id="score-address">Loading...</td>
+                </tr>
+                <tr>
+                  <td>City</td>
+                  <td id="score-city">Loading...</td>
+                </tr>
+                <tr>
+                  <td>State</td>
+                  <td id="score-state">Loading...</td>
+                </tr>
+                <tr>
+                  <td>Postal Code</td>
+                  <td id="score-postal-code">Loading...</td>
+                </tr>
+                <tr>
+                  <td>Date of Birth</td>
+                  <td id="score-dob">Loading...</td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
+        </div>
+
+        <!-- SIM Swap Check -->
+        <div class="card result-card">
+          <div class="card-header">
+            <h5>SIM Swap Check <span id="sim-swap-period"></span></h5>
+          </div>
+          <div class="card-body">
+            <p><strong>SIM Swapped in Period:</strong> <span id="sim-swapped"></span></p>
+            <p><strong>Last SIM Swap Date:</strong> <span id="sim-swap-date">Loading...</span></p>
+          </div>
+        </div>
+
+        <!-- Reassigned Number Check -->
+        <div class="card result-card">
+          <div class="card-header">
+            <h5>Reassigned Number Check <span id="reassigned-period"></span></h5>
+          </div>
+          <div class="card-body">
+            <p><strong>Number Reassigned in Period:</strong> <span id="number-reassigned"></span></p>
+            <p><strong>Last Reassignment Date:</strong> <span id="reassignment-date">Loading...</span></p>
+          </div>
+        </div>
+
+        <div class="text-center">
+          <a href="/preferences" class="btn btn-primary btn-lg">Back to Preferences</a>
+        </div>
+      </article>
+    </div>
+  </div>
+
+  <!-- jQuery and Bootstrap -->
+  <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+  <script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/js/bootstrap.min.js"></script>
+
+  <script>
+    $(document).ready(function() {
+      // Helper functions
+      function getScoreClass(score) {
+        if (score === null || score === undefined) return '';
+        if (score >= 80) return 'score-high';
+        if (score >= 50) return 'score-medium';
+        return 'score-low';
+      }
+
+      function formatScore(score) {
+        return (score !== null && score !== undefined) ? score + '/100' : 'Not Available';
+      }
+
+      function formatDate(dateString) {
+        if (!dateString) return 'N/A';
+        const date = new Date(dateString);
+        return date.toLocaleDateString('en-US', {
+          year: 'numeric',
+          month: 'long',
+          day: 'numeric'
+        });
+      }
+
+      // Load lookup data from sessionStorage
+      const lookupData = JSON.parse(sessionStorage.getItem('lookupData') || '{}');
+
+      // Check if data exists, otherwise redirect
+      if (!lookupData || Object.keys(lookupData).length === 0) {
+        alert('No lookup data found. Please complete the signup process first.');
+        window.location.href = '/';
+        return;
+      }
+
+      // Populate Line Type Intelligence
+      if (lookupData.lineType) {
+        $('#carrier-name').text(lookupData.lineType.carrierName || 'N/A');
+        $('#phone-type').text(lookupData.lineType.phoneType || 'N/A');
+      }
+
+      // Populate Identity Match Scores
+      if (lookupData.identityMatch) {
+        const im = lookupData.identityMatch;
+
+        $('#score-first-name')
+          .attr('class', getScoreClass(im.firstName))
+          .text(formatScore(im.firstName));
+
+        $('#score-last-name')
+          .attr('class', getScoreClass(im.lastName))
+          .text(formatScore(im.lastName));
+
+        $('#score-address')
+          .attr('class', getScoreClass(im.address))
+          .text(formatScore(im.address));
+
+        $('#score-city')
+          .attr('class', getScoreClass(im.city))
+          .text(formatScore(im.city));
+
+        $('#score-state')
+          .attr('class', getScoreClass(im.state))
+          .text(formatScore(im.state));
+
+        $('#score-postal-code')
+          .attr('class', getScoreClass(im.postalCode))
+          .text(formatScore(im.postalCode));
+
+        $('#score-dob')
+          .attr('class', getScoreClass(im.dateOfBirth))
+          .text(formatScore(im.dateOfBirth));
+      }
+
+      // Populate SIM Swap Check
+      if (lookupData.simSwap) {
+        const simSwap = lookupData.simSwap;
+
+        // Update header with period
+        if (simSwap.period) {
+          $('#sim-swap-period').text('(Last ' + simSwap.period + ' Days)');
+        }
+
+        // Update swapped status
+        if (simSwap.swappedInPeriod) {
+          $('#sim-swapped').html('<span class="text-danger">&#10007; Yes</span>');
+        } else {
+          $('#sim-swapped').html('<span class="text-success">&#10003; No</span>');
+        }
+
+        // Update last swap date
+        $('#sim-swap-date').text(formatDate(simSwap.lastSwapDate));
+      }
+
+      // Populate Reassigned Number Check
+      if (lookupData.reassignedNumber) {
+        const reassigned = lookupData.reassignedNumber;
+
+        // Update header with period
+        if (reassigned.period) {
+          $('#reassigned-period').text('(Last ' + reassigned.period + ' Days)');
+        }
+
+        // Update reassigned status
+        if (reassigned.reassignedInPeriod) {
+          $('#number-reassigned').html('<span class="text-danger">&#10007; Yes</span>');
+        } else {
+          $('#number-reassigned').html('<span class="text-success">&#10003; No</span>');
+        }
+
+        // Update last reassignment date
+        $('#reassignment-date').text(formatDate(reassigned.lastReassignedDate));
+      }
+    });
+  </script>
+</body>
+</html>
