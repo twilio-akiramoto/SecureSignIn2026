@@ -1,0 +1,142 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Phone Verification - Secure Account Signups</title>
+
+  <!-- Bootstrap 3 -->
+  <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/css/bootstrap.min.css">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/jquery.bootstrapvalidator/0.5.3/css/bootstrapValidator.min.css">
+
+  <style>
+    body {
+      padding-top: 20px;
+    }
+    .card {
+      box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+      border-radius: 8px;
+      margin-bottom: 20px;
+    }
+    .card-body {
+      padding: 30px;
+    }
+  </style>
+</head>
+
+<body>
+  <nav class="navbar navbar-default">
+    <div class="container-fluid">
+      <div class="navbar-header">
+        <a class="navbar-brand" href="/">Secure Account Signups</a>
+      </div>
+    </div>
+  </nav>
+
+  <div class="container">
+    <div class="card bg-light">
+      <article class="card-body center-block" style="max-width: 400px;">
+        <h4 class="card-title mt-3 text-center">Secure Account Signups</h4>
+        <p class="text-center">
+          <img alt="Brand" src="https://agent-logos.storage.googleapis.com/_/m0y6xq7eUCmIpHFSvvVA0ALc" height="32px" />
+        </p>
+
+        <form class="phone-verification-form" action="/preferences" method="get">
+          <div class="form-group">
+            <input type="text" id="first_name" name="first_name" class="form-control" placeholder="First name" disabled />
+          </div>
+
+          <div class="form-group">
+            <input type="text" id="last_name" name="last_name" class="form-control" placeholder="Last name" disabled />
+          </div>
+
+          <div class="form-group">
+            <input type="text" id="address" name="address" class="form-control" placeholder="Address" disabled />
+          </div>
+
+          <div class="form-group">
+            <input type="text" id="city" name="city" class="form-control" placeholder="City" disabled />
+          </div>
+
+          <div class="form-group">
+            <input type="text" id="state" name="state" class="form-control" placeholder="State" disabled />
+          </div>
+
+          <div class="form-group">
+            <input type="text" id="postal_code" name="postal_code" class="form-control" placeholder="Postal Code" disabled />
+          </div>
+
+          <!-- Country field REMOVED per requirements -->
+
+          <div class="form-group">
+            <input type="text" id="date_of_birth" name="date_of_birth" class="form-control" placeholder="Date of Birth" disabled />
+          </div>
+
+          <div class="form-group">
+            <input type="email" id="email_address" name="email_address" class="form-control" placeholder="Email address" disabled />
+          </div>
+
+          <div class="form-group">
+            <input type="phone" id="mobile_phone_number" name="mobile_phone_number" class="form-control" placeholder="Mobile phone number" disabled />
+          </div>
+
+          <div class="form-group">
+            <input type="text" id="verification_code" name="verification_code" class="form-control" placeholder="Verification Code" required />
+          </div>
+
+          <div class="form-group">
+            <button type="submit" class="btn btn-primary btn-block">Continue</button>
+          </div>
+        </form>
+      </article>
+    </div>
+  </div>
+
+  <!-- jQuery and Bootstrap -->
+  <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+  <script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/js/bootstrap.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery.bootstrapvalidator/0.5.3/js/bootstrapValidator.min.js"></script>
+
+  <script>
+    $(document).ready(function() {
+      // Load form data from sessionStorage
+      $('#first_name').val(sessionStorage.getItem('19q3.first_name') || '');
+      $('#last_name').val(sessionStorage.getItem('19q3.last_name') || '');
+      $('#address').val(sessionStorage.getItem('19q3.address') || '');
+      $('#city').val(sessionStorage.getItem('19q3.city') || '');
+      $('#state').val(sessionStorage.getItem('19q3.state') || '');
+      $('#postal_code').val(sessionStorage.getItem('19q3.postal_code') || '');
+      $('#date_of_birth').val(sessionStorage.getItem('19q3.date_of_birth') || '');
+      $('#email_address').val(sessionStorage.getItem('19q3.email_address') || '');
+      $('#mobile_phone_number').val(sessionStorage.getItem('19q3.mobile_phone_number') || '');
+
+      // Bootstrap validator for verification code
+      $('.phone-verification-form').bootstrapValidator({
+        live: 'enabled',
+        feedbackIcons: {
+          valid: 'glyphicon glyphicon-ok',
+          invalid: 'glyphicon glyphicon-remove',
+          validating: 'glyphicon glyphicon-refresh'
+        },
+        fields: {
+          verification_code: {
+            trigger: 'blur',
+            message: "That's not the correct code",
+            validators: {
+              remote: {
+                url: '/verify-check',
+                data: function(validator) {
+                  return {
+                    mobile_number: $('#mobile_phone_number').val(),
+                    verification_code: $('#verification_code').val()
+                  };
+                }
+              }
+            }
+          }
+        }
+      });
+    });
+  </script>
+</body>
+</html>
