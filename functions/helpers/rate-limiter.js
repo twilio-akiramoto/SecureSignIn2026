@@ -22,13 +22,13 @@ function canVerify(phoneNumber) {
 
   // No previous attempts
   if (!record) {
-    return { allowed: true, remaining: MAX_ATTEMPTS - 1, resetAt: null };
+    return { allowed: true, remaining: MAX_ATTEMPTS, resetAt: null };
   }
 
   // Reset window expired - clear old record
   if (now >= record.resetAt) {
     verifyAttempts.delete(phoneNumber);
-    return { allowed: true, remaining: MAX_ATTEMPTS - 1, resetAt: null };
+    return { allowed: true, remaining: MAX_ATTEMPTS, resetAt: null };
   }
 
   // Within reset window - check count
@@ -42,7 +42,7 @@ function canVerify(phoneNumber) {
 
   return {
     allowed: true,
-    remaining: MAX_ATTEMPTS - record.count - 1,
+    remaining: MAX_ATTEMPTS - record.count,
     resetAt: new Date(record.resetAt)
   };
 }
@@ -53,6 +53,16 @@ function canVerify(phoneNumber) {
  */
 function recordAttempt(phoneNumber) {
   const now = Date.now();
+
+  // Periodic cleanup to prevent unbounded growth
+  if (verifyAttempts.size > 10000) {
+    for (const [phone, record] of verifyAttempts.entries()) {
+      if (now >= record.resetAt) {
+        verifyAttempts.delete(phone);
+      }
+    }
+  }
+
   const record = verifyAttempts.get(phoneNumber);
 
   if (!record || now >= record.resetAt) {
@@ -64,7 +74,6 @@ function recordAttempt(phoneNumber) {
   } else {
     // Increment existing record
     record.count += 1;
-    verifyAttempts.set(phoneNumber, record);
   }
 }
 
