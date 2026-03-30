@@ -7,7 +7,7 @@
   },
   "main": "functions/index.js",
   "scripts": {
-    "start": "twilio-run",
+    "start": "twilio-run --assets=assets",
     "deploy": "twilio serverless:deploy"
   },
   "dependencies": {

@@ -1,11 +1,15 @@
+const path = require('path');
+const fs = require('fs');
+
 exports.handler = function(context, event, callback) {
   const response = new Twilio.Response();
   response.setStatusCode(200);
   response.appendHeader('Content-Type', 'text/html');
 
-  // Read the HTML asset
-  const asset = Runtime.getAssets()['/stytch-results.html'];
-  response.setBody(asset.open());
+  // Read the HTML file
+  const htmlPath = path.join(__dirname, '..', 'assets', 'stytch-results.html');
+  const html = fs.readFileSync(htmlPath, 'utf8');
+  response.setBody(html);
 
   return callback(null, response);
 };
