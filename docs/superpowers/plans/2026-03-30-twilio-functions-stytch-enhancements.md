@@ -1771,3 +1771,19 @@ This plan is already quite extensive. Would you like me to:
 - Verify rate limiting works
 - Test Stytch integration
 - Deploy to Twilio after local validation
+
+**Deployment Configuration:**
+- **Function Visibility:** All functions MUST be set to "Protected"
+  - This requires a valid Twilio auth token to invoke
+  - Prevents unauthorized access to endpoints
+  - Configure via Twilio Console → Functions → Configure → Function Access
+  - Or set in `.twilio-functions` file:
+    ```json
+    {
+      "functions": {
+        "protected": true
+      }
+    }
+    ```
+- **Assets Visibility:** Public (HTML, JS, CSS files need to be accessible)
+- **Environment Variables:** Ensure all secrets are configured in Twilio Console
