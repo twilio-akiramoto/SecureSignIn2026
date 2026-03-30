@@ -27,9 +27,8 @@ exports.handler = async function(context, event, callback) {
       twimlUrl = 'https://demo.twilio.com/docs/voice.xml';
       // Alternative: Use environment variable like context.TWIML_ORDER_CONFIRMATION_URL
     } else if (event.call_type === 'fraud-alert') {
-      // Placeholder TwiML URL - can be replaced with custom TwiML endpoint
-      twimlUrl = 'https://demo.twilio.com/docs/voice.xml';
-      // Alternative: Use environment variable like context.TWIML_FRAUD_ALERT_URL
+      // Fraud alert TwiML bin
+      twimlUrl = 'https://handler.twilio.com/twiml/EH80b05ba088ad47b84e99f253563c602e';
     } else {
       throw new Error(`Invalid call_type: ${event.call_type}`);
     }
