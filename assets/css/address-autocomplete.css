@@ -1,0 +1,37 @@
+.address-suggestions {
+  position: absolute;
+  z-index: 1000;
+  background: white;
+  border: 1px solid #ccc;
+  border-radius: 4px;
+  box-shadow: 0 2px 4px rgba(0,0,0,0.2);
+  max-height: 300px;
+  overflow-y: auto;
+  width: 100%;
+  margin-top: 2px;
+}
+
+.address-suggestions .list-group {
+  margin-bottom: 0;
+}
+
+.address-suggestion-item {
+  cursor: pointer;
+  padding: 10px;
+  border-left: none;
+  border-right: none;
+}
+
+.address-suggestion-item:first-child {
+  border-top: none;
+  border-radius: 4px 4px 0 0;
+}
+
+.address-suggestion-item:last-child {
+  border-bottom: none;
+  border-radius: 0 0 4px 4px;
+}
+
+.address-suggestion-item:hover {
+  background-color: #f5f5f5;
+}
