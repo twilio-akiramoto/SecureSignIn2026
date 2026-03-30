@@ -1,0 +1,255 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Stytch Security Analysis - Secure Account Signups</title>
+
+  <!-- Bootstrap 3 -->
+  <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/css/bootstrap.min.css">
+
+  <style>
+    body {
+      padding-top: 20px;
+    }
+    .status-safe { color: #28a745; font-weight: bold; }
+    .status-caution { color: #ffc107; font-weight: bold; }
+    .status-danger { color: #dc3545; font-weight: bold; }
+    .result-card { margin-bottom: 20px; }
+    .table { margin-bottom: 0; }
+    .card {
+      box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+      border-radius: 8px;
+      margin-bottom: 20px;
+    }
+    .card-body {
+      padding: 30px;
+    }
+    .card-header {
+      background-color: #f5f5f5;
+      padding: 15px;
+      border-bottom: 1px solid #ddd;
+      border-top-left-radius: 8px;
+      border-top-right-radius: 8px;
+    }
+    .card-header h5 {
+      margin: 0;
+      font-weight: bold;
+    }
+  </style>
+</head>
+
+<body>
+  <nav class="navbar navbar-inverse">
+    <div class="container">
+      <div class="navbar-header">
+        <a class="navbar-brand" href="/" style="padding: 0">
+          <img alt="Brand" src="https://agent-logos.storage.googleapis.com/_/m0y6xq7eUCmIpHFSvvVA0ALc" height="50px" />
+        </a>
+      </div>
+    </div>
+  </nav>
+
+  <div class="container">
+    <div class="card bg-light">
+      <article class="card-body center-block" style="max-width: 800px;">
+        <h4 class="card-title mt-3 text-center">Stytch Security Analysis</h4>
+        <p class="text-center">
+          <img alt="Brand" src="https://agent-logos.storage.googleapis.com/_/m0y6xq7eUCmIpHFSvvVA0ALc" height="32px" />
+        </p>
+
+        <!-- Device Fingerprint Section -->
+        <div class="card result-card">
+          <div class="card-header">
+            <h5>Device Fingerprint Information</h5>
+          </div>
+          <div class="card-body">
+            <table class="table">
+              <tbody>
+                <tr>
+                  <td><strong>Fingerprint ID:</strong></td>
+                  <td id="fingerprint-id">Loading...</td>
+                </tr>
+                <tr>
+                  <td><strong>Browser:</strong></td>
+                  <td id="fingerprint-browser">Loading...</td>
+                </tr>
+                <tr>
+                  <td><strong>Operating System:</strong></td>
+                  <td id="fingerprint-os">Loading...</td>
+                </tr>
+                <tr>
+                  <td><strong>Screen Resolution:</strong></td>
+                  <td id="fingerprint-screen">Loading...</td>
+                </tr>
+                <tr>
+                  <td><strong>User Agent:</strong></td>
+                  <td id="fingerprint-user-agent" style="word-break: break-all;">Loading...</td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
+        </div>
+
+        <!-- Bot Detection Section -->
+        <div class="card result-card">
+          <div class="card-header">
+            <h5>Bot Detection Results</h5>
+          </div>
+          <div class="card-body">
+            <p><strong>Bot Detected:</strong> <span id="bot-status">Loading...</span></p>
+            <p><strong>Detection Confidence:</strong> <span id="bot-confidence">Loading...</span></p>
+            <p><strong>Analysis Timestamp:</strong> <span id="bot-timestamp">Loading...</span></p>
+          </div>
+        </div>
+
+        <!-- Session Information Section -->
+        <div class="card result-card" id="session-card">
+          <div class="card-header">
+            <h5>Session Information</h5>
+          </div>
+          <div class="card-body">
+            <table class="table">
+              <tbody>
+                <tr>
+                  <td><strong>Session ID:</strong></td>
+                  <td id="session-id">Loading...</td>
+                </tr>
+                <tr>
+                  <td><strong>Session Status:</strong></td>
+                  <td id="session-status">Loading...</td>
+                </tr>
+                <tr>
+                  <td><strong>Created At:</strong></td>
+                  <td id="session-created">Loading...</td>
+                </tr>
+                <tr>
+                  <td><strong>Last Accessed:</strong></td>
+                  <td id="session-accessed">Loading...</td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
+        </div>
+
+        <div class="text-center">
+          <a href="/preferences" class="btn btn-primary btn-lg">Back to Preferences</a>
+        </div>
+      </article>
+    </div>
+  </div>
+
+  <!-- jQuery and Bootstrap -->
+  <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+  <script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/js/bootstrap.min.js"></script>
+
+  <script>
+    $(document).ready(function() {
+      // Helper function for formatting timestamps
+      function formatTimestamp(timestamp) {
+        if (!timestamp) return 'N/A';
+        const date = new Date(timestamp);
+        if (isNaN(date.getTime())) return 'N/A';
+        return date.toLocaleString('en-US', {
+          year: 'numeric',
+          month: 'long',
+          day: 'numeric',
+          hour: '2-digit',
+          minute: '2-digit',
+          second: '2-digit'
+        });
+      }
+
+      // Helper function for formatting confidence score
+      function getConfidenceClass(confidence) {
+        if (confidence === null || confidence === undefined) return '';
+        if (confidence >= 80) return 'status-safe';
+        if (confidence >= 50) return 'status-caution';
+        return 'status-danger';
+      }
+
+      // Load Stytch data from sessionStorage
+      let stytchData = {};
+      try {
+        stytchData = JSON.parse(sessionStorage.getItem('19q3.stytchData') || '{}');
+      } catch (e) {
+        console.error('Failed to parse Stytch data:', e);
+        alert('No Stytch data found. Please complete the signup process first.');
+        window.location.href = '/';
+        return;
+      }
+
+      // Redirect if no data
+      if (!stytchData || Object.keys(stytchData).length === 0) {
+        alert('No Stytch data found. Please complete the signup process first.');
+        window.location.href = '/';
+        return;
+      }
+
+      // Populate Device Fingerprint Information
+      if (stytchData.fingerprint) {
+        const fp = stytchData.fingerprint;
+
+        $('#fingerprint-id').text(fp.id || 'N/A');
+        $('#fingerprint-browser').text(fp.browser || 'N/A');
+        $('#fingerprint-os').text(fp.os || 'N/A');
+
+        // Format screen resolution
+        if (fp.screen_width && fp.screen_height) {
+          $('#fingerprint-screen').text(fp.screen_width + ' x ' + fp.screen_height);
+        } else {
+          $('#fingerprint-screen').text('N/A');
+        }
+
+        $('#fingerprint-user-agent').text(fp.user_agent || 'N/A');
+      } else {
+        // If no fingerprint data, show N/A for all fields
+        $('#fingerprint-id, #fingerprint-browser, #fingerprint-os, #fingerprint-screen, #fingerprint-user-agent').text('N/A');
+      }
+
+      // Populate Bot Detection Results
+      if (stytchData.botDetection) {
+        const bot = stytchData.botDetection;
+
+        // Set bot status with color coding
+        if (bot.isBot) {
+          $('#bot-status').text('✗ Yes').addClass('status-danger');
+        } else {
+          $('#bot-status').text('✓ No').addClass('status-safe');
+        }
+
+        // Set confidence score with color coding
+        const confidence = bot.confidence;
+        if (confidence !== null && confidence !== undefined) {
+          $('#bot-confidence')
+            .text(confidence + '%')
+            .addClass(getConfidenceClass(confidence));
+        } else {
+          $('#bot-confidence').text('N/A');
+        }
+
+        // Set timestamp
+        $('#bot-timestamp').text(formatTimestamp(bot.timestamp));
+      } else {
+        // If no bot detection data, show N/A
+        $('#bot-status').text('N/A');
+        $('#bot-confidence').text('N/A');
+        $('#bot-timestamp').text('N/A');
+      }
+
+      // Populate Session Information (if available)
+      if (stytchData.session) {
+        const session = stytchData.session;
+
+        $('#session-id').text(session.id || 'N/A');
+        $('#session-status').text(session.status || 'N/A');
+        $('#session-created').text(formatTimestamp(session.created_at));
+        $('#session-accessed').text(formatTimestamp(session.last_accessed_at));
+      } else {
+        // Hide session card if no session data
+        $('#session-card').hide();
+      }
+    });
+  </script>
+</body>
+</html>
