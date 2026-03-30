@@ -387,11 +387,22 @@
           sessionStorage.setItem('19q3.' + key, formData[key]);
         });
 
-        // Update hidden field for phone number
-        $('#mobile_phone_number').val(formData.mobile_phone_number);
-
-        // Submit form
-        this.submit();
+        // Send verification code via /verify endpoint
+        $.get('/verify', {
+          mobile_number: formData.mobile_phone_number
+        })
+        .done(function(response) {
+          if (response.valid) {
+            // Verification sent successfully, redirect to verification page
+            window.location.href = '/phone-verification';
+          } else {
+            // Show error message
+            alert('Error sending verification code: ' + response.message);
+          }
+        })
+        .fail(function() {
+          alert('Failed to send verification code. Please try again.');
+        });
       });
     });
   </script>
