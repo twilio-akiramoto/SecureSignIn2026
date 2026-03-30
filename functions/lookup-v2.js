@@ -29,7 +29,7 @@ exports.handler = async function(context, event, callback) {
     const lookupResult = await twilioClient.lookupV2(context, event.mobile_number, userData);
 
     // Transform the response using business logic
-    const transformedData = businessLogic.transformLookupV2Response(lookupResult);
+    const transformedData = businessLogic.transformLookupV2Data(lookupResult);
 
     // Return success response
     response.setStatusCode(200);
