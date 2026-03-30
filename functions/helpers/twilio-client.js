@@ -95,6 +95,9 @@ async function sendVerificationCode(context, phoneNumber) {
     };
   }
 
+  // Record attempt BEFORE making API call
+  rateLimiter.recordAttempt(phoneNumber);
+
   const client = getTwilioClient(context);
 
   try {
@@ -106,15 +109,12 @@ async function sendVerificationCode(context, phoneNumber) {
         channel: 'sms'
       });
 
-    // Record successful attempt
-    rateLimiter.recordAttempt(phoneNumber);
-
     return {
       success: true,
       verification: verification,
       error: null,
       rateLimitInfo: {
-        remaining: rateLimitCheck.remaining,
+        remaining: rateLimitCheck.remaining - 1,
         resetAt: null
       }
     };
