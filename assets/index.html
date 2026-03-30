@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html>
+<html lang="en">
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -9,8 +9,11 @@
   <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/css/bootstrap.min.css">
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/jquery.bootstrapvalidator/0.5.3/css/bootstrapValidator.min.css">
 
+  <!-- International Telephone Input -->
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/intl-tel-input/16.0.2/css/intlTelInput.min.css">
+
   <!-- Custom CSS -->
-  <link rel="stylesheet" href="address-autocomplete.css">
+  <link rel="stylesheet" href="css/address-autocomplete.css">
 
   <style>
     body {
@@ -167,14 +170,13 @@
 
   <!-- International Telephone Input -->
   <script src="https://cdnjs.cloudflare.com/ajax/libs/intl-tel-input/16.0.2/js/intlTelInput.min.js"></script>
-  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/intl-tel-input/16.0.2/css/intlTelInput.min.css">
 
   <!-- Stytch SDK -->
   <script src="https://unpkg.com/@stytch/vanilla-js"></script>
 
   <!-- Custom Scripts -->
-  <script src="address-autocomplete.js"></script>
-  <script src="stytch-init.js"></script>
+  <script src="js/address-autocomplete.js"></script>
+  <script src="js/stytch-init.js"></script>
 
   <script>
     $(document).ready(function() {
@@ -184,17 +186,17 @@
         window.StytchInit.init(stytchPublicToken);
       }
 
-      // Clear localStorage
-      localStorage.removeItem('19q3.first_name');
-      localStorage.removeItem('19q3.last_name');
-      localStorage.removeItem('19q3.address');
-      localStorage.removeItem('19q3.city');
-      localStorage.removeItem('19q3.state');
-      localStorage.removeItem('19q3.postal_code');
-      localStorage.removeItem('19q3.country');
-      localStorage.removeItem('19q3.date_of_birth');
-      localStorage.removeItem('19q3.email_address');
-      localStorage.removeItem('19q3.mobile_phone_number');
+      // Clear sessionStorage
+      sessionStorage.removeItem('19q3.first_name');
+      sessionStorage.removeItem('19q3.last_name');
+      sessionStorage.removeItem('19q3.address');
+      sessionStorage.removeItem('19q3.city');
+      sessionStorage.removeItem('19q3.state');
+      sessionStorage.removeItem('19q3.postal_code');
+      sessionStorage.removeItem('19q3.country');
+      sessionStorage.removeItem('19q3.date_of_birth');
+      sessionStorage.removeItem('19q3.email_address');
+      sessionStorage.removeItem('19q3.mobile_phone_number');
 
       // Initialize international telephone input
       var input = document.querySelector('#mobile_phone_number');
@@ -359,6 +361,12 @@
       $('#signup-form').submit(function(e) {
         e.preventDefault();
 
+        // Check if form is valid
+        var validator = $('.sign-up-form').data('bootstrapValidator');
+        if (!validator || !validator.isValid()) {
+          return false;
+        }
+
         let formData = {
           first_name: $('#first_name').val(),
           last_name: $('#last_name').val(),
@@ -372,9 +380,9 @@
           stytch_fingerprint_id: window.StytchInit ? window.StytchInit.getFingerprintId() : null
         };
 
-        // Store in localStorage
+        // Store in sessionStorage (not localStorage for security)
         Object.keys(formData).forEach(key => {
-          localStorage.setItem('19q3.' + key, formData[key]);
+          sessionStorage.setItem('19q3.' + key, formData[key]);
         });
 
         // Update hidden field for phone number
