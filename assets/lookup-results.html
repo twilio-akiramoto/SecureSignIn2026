@@ -174,7 +174,14 @@
       }
 
       // Load lookup data from sessionStorage
-      const lookupData = JSON.parse(sessionStorage.getItem('lookupData') || '{}');
+      let lookupData = {};
+      try {
+        lookupData = JSON.parse(sessionStorage.getItem('19q3.lookupData') || '{}');
+      } catch (e) {
+        console.error('Failed to parse lookup data:', e);
+        window.location.href = '/';
+        return;
+      }
 
       // Check if data exists, otherwise redirect
       if (!lookupData || Object.keys(lookupData).length === 0) {
@@ -233,9 +240,9 @@
 
         // Update swapped status
         if (simSwap.swappedInPeriod) {
-          $('#sim-swapped').html('<span class="text-danger">&#10007; Yes</span>');
+          $('#sim-swapped').text('✗ Yes').addClass('text-danger');
         } else {
-          $('#sim-swapped').html('<span class="text-success">&#10003; No</span>');
+          $('#sim-swapped').text('✓ No').addClass('text-success');
         }
 
         // Update last swap date
@@ -253,9 +260,9 @@
 
         // Update reassigned status
         if (reassigned.reassignedInPeriod) {
-          $('#number-reassigned').html('<span class="text-danger">&#10007; Yes</span>');
+          $('#number-reassigned').text('✗ Yes').addClass('text-danger');
         } else {
-          $('#number-reassigned').html('<span class="text-success">&#10003; No</span>');
+          $('#number-reassigned').text('✓ No').addClass('text-success');
         }
 
         // Update last reassignment date
