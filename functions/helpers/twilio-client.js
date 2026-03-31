@@ -3,7 +3,15 @@
  * Provides methods for Lookup v1, Lookup v2, Verify, and Messaging
  */
 
-const rateLimiter = require('./rate-limiter');
+// Rate limiter will be loaded lazily when needed
+let rateLimiter = null;
+
+function getRateLimiter() {
+  if (!rateLimiter) {
+    rateLimiter = require(Runtime.getFunctions()['helpers/rate-limiter'].path);
+  }
+  return rateLimiter;
+}
 
 /**
  * Initialize Twilio client from Runtime context
@@ -80,14 +88,15 @@ async function lookupV2(context, phoneNumber, userData) {
  */
 async function sendVerificationCode(context, phoneNumber) {
   // Check rate limit
-  const rateLimitCheck = rateLimiter.canVerify(phoneNumber);
+  const limiter = getRateLimiter();
+  const rateLimitCheck = limiter.canVerify(phoneNumber);
 
   if (!rateLimitCheck.allowed) {
     const resetTime = rateLimitCheck.resetAt.toLocaleString();
     return {
       success: false,
       verification: null,
-      error: `Rate limit exceeded. Maximum ${rateLimiter.MAX_ATTEMPTS} verification attempts allowed. Try again after ${resetTime}`,
+      error: `Rate limit exceeded. Maximum ${limiter.MAX_ATTEMPTS} verification attempts allowed. Try again after ${resetTime}`,
       rateLimitInfo: {
         remaining: 0,
         resetAt: rateLimitCheck.resetAt
@@ -96,7 +105,7 @@ async function sendVerificationCode(context, phoneNumber) {
   }
 
   // Record attempt BEFORE making API call
-  rateLimiter.recordAttempt(phoneNumber);
+  limiter.recordAttempt(phoneNumber);
 
   const client = getTwilioClient(context);
 
