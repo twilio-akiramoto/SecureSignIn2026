@@ -51,8 +51,21 @@ exports.handler = async function(context, event, callback) {
     // Call Lookup v2 API
     const lookupResult = await twilioClient.lookupV2(context, event.mobile_number, userData);
 
-    // Debug: Log raw API response
+    // Debug: Log raw API response (limited due to circular refs)
     console.log('Lookup v2 raw response:', JSON.stringify(lookupResult, null, 2));
+
+    // Debug: Log specific objects that aren't serializing
+    console.log('identityMatch object:', lookupResult.identityMatch);
+    console.log('identityMatch keys:', lookupResult.identityMatch ? Object.keys(lookupResult.identityMatch) : 'undefined');
+    if (lookupResult.identityMatch) {
+      console.log('first_name_match:', lookupResult.identityMatch.first_name_match);
+      console.log('firstName_match:', lookupResult.identityMatch.firstName_match);
+      console.log('firstNameMatch:', lookupResult.identityMatch.firstNameMatch);
+    }
+
+    console.log('lineTypeIntelligence:', lookupResult.lineTypeIntelligence);
+    console.log('simSwap:', lookupResult.simSwap);
+    console.log('reassignedNumber:', lookupResult.reassignedNumber);
 
     // Transform the response using business logic
     const transformedData = businessLogic.transformLookupV2Data(lookupResult);
