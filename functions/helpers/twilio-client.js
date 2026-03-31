@@ -57,22 +57,29 @@ async function lookupV2(context, phoneNumber, userData) {
     ? userData.date_of_birth.replace(/-/g, '')
     : undefined;
 
+  // Build params object, only including non-empty values
+  const params = {
+    fields: 'line_type_intelligence,identity_match,sim_swap,reassigned_number',
+    countryCode: 'US', // Hardcoded to US (country dropdown removed)
+    simSwapPeriod: context.SIM_SWAP_PERIOD || '30',
+    reassignedNumberPeriod: context.REASSIGNED_NUMBER_PERIOD || '30'
+  };
+
+  // Only add identity match fields if they have values
+  if (userData.first_name) params.firstName = userData.first_name;
+  if (userData.last_name) params.lastName = userData.last_name;
+  if (userData.address) params.addressLine1 = userData.address;
+  if (userData.city) params.city = userData.city;
+  if (userData.state) params.state = userData.state;
+  if (userData.postal_code) params.postalCode = userData.postal_code;
+  if (dateOfBirth) params.dateOfBirth = dateOfBirth;
+
+  console.log('Lookup v2 params:', JSON.stringify(params, null, 2));
+
   try {
     const result = await client.lookups.v2
       .phoneNumbers(phoneNumber)
-      .fetch({
-        fields: 'line_type_intelligence,identity_match,sim_swap,reassigned_number',
-        firstName: userData.first_name,
-        lastName: userData.last_name,
-        addressLine1: userData.address,
-        city: userData.city,
-        state: userData.state,
-        postalCode: userData.postal_code,
-        countryCode: 'US', // Hardcoded to US (country dropdown removed)
-        dateOfBirth: dateOfBirth,
-        simSwapPeriod: context.SIM_SWAP_PERIOD || '30',
-        reassignedNumberPeriod: context.REASSIGNED_NUMBER_PERIOD || '30'
-      });
+      .fetch(params);
     return result;
   } catch (error) {
     console.error('Lookup v2 error:', error);
