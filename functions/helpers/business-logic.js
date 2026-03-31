@@ -147,36 +147,68 @@ function convertMatchScoreToNumber(matchString) {
  * @returns {Object} - Structured lookup data
  */
 function transformLookupV2Data(lookupResponse) {
+  // Twilio SDK uses camelCase for property names
   return {
     valid: lookupResponse.valid || false,
     phoneNumber: lookupResponse.phoneNumber || '',
 
     lineType: {
-      carrierName: lookupResponse.lineTypeIntelligence?.carrier_name || 'Unknown',
+      carrierName: lookupResponse.lineTypeIntelligence?.carrierName ||
+                   lookupResponse.lineTypeIntelligence?.carrier_name || 'Unknown',
       phoneType: lookupResponse.lineTypeIntelligence?.type || 'Unknown'
     },
 
     identityMatch: {
-      firstName: convertMatchScoreToNumber(lookupResponse.identityMatch?.first_name_match),
-      lastName: convertMatchScoreToNumber(lookupResponse.identityMatch?.last_name_match),
-      address: convertMatchScoreToNumber(lookupResponse.identityMatch?.address_lines_match),
-      city: convertMatchScoreToNumber(lookupResponse.identityMatch?.city_match),
-      state: convertMatchScoreToNumber(lookupResponse.identityMatch?.state_match),
-      postalCode: convertMatchScoreToNumber(lookupResponse.identityMatch?.postal_code_match),
-      country: convertMatchScoreToNumber(lookupResponse.identityMatch?.address_country_match),
-      dateOfBirth: convertMatchScoreToNumber(lookupResponse.identityMatch?.date_of_birth_match)
+      firstName: convertMatchScoreToNumber(
+        lookupResponse.identityMatch?.firstNameMatch ||
+        lookupResponse.identityMatch?.first_name_match
+      ),
+      lastName: convertMatchScoreToNumber(
+        lookupResponse.identityMatch?.lastNameMatch ||
+        lookupResponse.identityMatch?.last_name_match
+      ),
+      address: convertMatchScoreToNumber(
+        lookupResponse.identityMatch?.addressLinesMatch ||
+        lookupResponse.identityMatch?.address_lines_match
+      ),
+      city: convertMatchScoreToNumber(
+        lookupResponse.identityMatch?.cityMatch ||
+        lookupResponse.identityMatch?.city_match
+      ),
+      state: convertMatchScoreToNumber(
+        lookupResponse.identityMatch?.stateMatch ||
+        lookupResponse.identityMatch?.state_match
+      ),
+      postalCode: convertMatchScoreToNumber(
+        lookupResponse.identityMatch?.postalCodeMatch ||
+        lookupResponse.identityMatch?.postal_code_match
+      ),
+      country: convertMatchScoreToNumber(
+        lookupResponse.identityMatch?.addressCountryMatch ||
+        lookupResponse.identityMatch?.address_country_match
+      ),
+      dateOfBirth: convertMatchScoreToNumber(
+        lookupResponse.identityMatch?.dateOfBirthMatch ||
+        lookupResponse.identityMatch?.date_of_birth_match
+      )
     },
 
     simSwap: {
-      swappedInPeriod: lookupResponse.simSwap?.swapped_in_period || false,
-      lastSwapDate: lookupResponse.simSwap?.last_sim_swap_date || null,
-      period: lookupResponse.simSwap?.swapped_period || '30'
+      swappedInPeriod: lookupResponse.simSwap?.swappedInPeriod ||
+                       lookupResponse.simSwap?.swapped_in_period || false,
+      lastSwapDate: lookupResponse.simSwap?.lastSimSwapDate ||
+                    lookupResponse.simSwap?.last_sim_swap_date || null,
+      period: lookupResponse.simSwap?.swappedPeriod ||
+              lookupResponse.simSwap?.swapped_period || '30'
     },
 
     reassignedNumber: {
-      reassignedInPeriod: lookupResponse.reassignedNumber?.reassigned_in_period || false,
-      lastReassignedDate: lookupResponse.reassignedNumber?.last_reassigned_date || null,
-      period: lookupResponse.reassignedNumber?.reassigned_period || '30'
+      reassignedInPeriod: lookupResponse.reassignedNumber?.reassignedInPeriod ||
+                          lookupResponse.reassignedNumber?.reassigned_in_period || false,
+      lastReassignedDate: lookupResponse.reassignedNumber?.lastReassignedDate ||
+                          lookupResponse.reassignedNumber?.last_reassigned_date || null,
+      period: lookupResponse.reassignedNumber?.reassignedPeriod ||
+              lookupResponse.reassignedNumber?.reassigned_period || '30'
     }
   };
 }
