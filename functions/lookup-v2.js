@@ -45,11 +45,20 @@ exports.handler = async function(context, event, callback) {
         : ''
     };
 
+    // Debug: Log user data being sent
+    console.log('User data sent to Lookup v2:', JSON.stringify(userData, null, 2));
+
     // Call Lookup v2 API
     const lookupResult = await twilioClient.lookupV2(context, event.mobile_number, userData);
 
+    // Debug: Log raw API response
+    console.log('Lookup v2 raw response:', JSON.stringify(lookupResult, null, 2));
+
     // Transform the response using business logic
     const transformedData = businessLogic.transformLookupV2Data(lookupResult);
+
+    // Debug: Log transformed data
+    console.log('Transformed data:', JSON.stringify(transformedData, null, 2));
 
     // Return success response
     response.setStatusCode(200);
