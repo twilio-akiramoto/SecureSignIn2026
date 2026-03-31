@@ -6,29 +6,52 @@
 exports.handler = async function(context, event, callback) {
   const response = new Twilio.Response();
   response.appendHeader('Content-Type', 'application/json');
-  response.appendHeader('Access-Control-Allow-Origin', '*');
+
+  // Secure CORS: Allow same-origin or configured domains only
+  const origin = event.request?.headers?.origin || event.request?.headers?.referer;
+  const allowedOrigins = context.ALLOWED_ORIGINS
+    ? context.ALLOWED_ORIGINS.split(',')
+    : [];
+
+  // Allow same domain (Twilio Functions domain)
+  if (origin && (origin.includes('.twil.io') || allowedOrigins.includes(origin))) {
+    response.appendHeader('Access-Control-Allow-Origin', origin);
+    response.appendHeader('Access-Control-Allow-Methods', 'POST, OPTIONS');
+    response.appendHeader('Access-Control-Allow-Headers', 'Content-Type');
+  }
 
   try {
-    // Validate inputs
-    if (!event.sms_type) {
-      throw new Error('Missing required parameter: sms_type');
+    // Validate SMS type (whitelist)
+    const validSmsTypes = ['order-confirmation', 'fraud-alert'];
+    if (!event.sms_type || !validSmsTypes.includes(event.sms_type)) {
+      response.setStatusCode(400);
+      response.setBody({
+        success: false,
+        message: 'Invalid SMS type'
+      });
+      return callback(null, response);
     }
-    if (!event.phone_number) {
-      throw new Error('Missing required parameter: phone_number');
+
+    // Validate phone number
+    if (!event.phone_number || !/^\+[1-9]\d{1,14}$/.test(event.phone_number)) {
+      response.setStatusCode(400);
+      response.setBody({
+        success: false,
+        message: 'Invalid phone number'
+      });
+      return callback(null, response);
     }
 
     // Load Twilio helper
     const twilioClient = require(Runtime.getFunctions()['helpers/twilio-client'].path);
 
-    // Determine message based on SMS type
-    let message;
-    if (event.sms_type === 'order-confirmation') {
-      message = 'Your order has been confirmed!';
-    } else if (event.sms_type === 'fraud-alert') {
-      message = 'Fraud alert test: you will receive alerts from this number.';
-    } else {
-      throw new Error(`Invalid sms_type: ${event.sms_type}`);
-    }
+    // Determine message based on SMS type (secure)
+    const messages = {
+      'order-confirmation': 'Your order has been confirmed!',
+      'fraud-alert': 'Fraud alert test: you will receive alerts from this number.'
+    };
+
+    const message = messages[event.sms_type];
 
     // Send SMS
     const messageSid = await twilioClient.sendSMS(context, event.phone_number, message);
@@ -36,17 +59,22 @@ exports.handler = async function(context, event, callback) {
     response.setStatusCode(200);
     response.setBody({
       success: true,
-      message: `SMS sent successfully to ${event.phone_number}`,
-      messageSid: messageSid
+      message: 'SMS sent successfully'
     });
 
     return callback(null, response);
   } catch (error) {
-    console.error('Error sending SMS:', error);
+    // Log error server-side only
+    console.error('Error sending SMS:', {
+      code: error.code,
+      status: error.status
+    });
+
+    // Return generic error message to client
     response.setStatusCode(500);
     response.setBody({
       success: false,
-      message: error.message || 'Failed to send SMS'
+      message: 'Unable to send SMS. Please try again.'
     });
 
     return callback(null, response);
