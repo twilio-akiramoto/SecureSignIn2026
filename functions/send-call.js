@@ -46,14 +46,16 @@ exports.handler = async function(context, event, callback) {
 
     // Get TwiML URL from environment variables (secure)
     const twimlUrls = {
-      'order-confirmation': context.TWIML_ORDER_CONFIRMATION_URL,
-      'fraud-alert': context.TWIML_FRAUD_ALERT_URL
+      'order-confirmation': context.TWIML_ORDER_CONFIRMATION_URL || 'https://demo.twilio.com/docs/voice.xml',
+      'fraud-alert': context.TWIML_FRAUD_ALERT_URL || 'https://handler.twilio.com/twiml/EH80b05ba088ad47b84e99f253563c602e'
     };
 
     const twimlUrl = twimlUrls[event.call_type];
     if (!twimlUrl) {
-      throw new Error('TwiML URL not configured');
+      throw new Error('TwiML URL not configured for call type: ' + event.call_type);
     }
+
+    console.log('Using TwiML URL:', twimlUrl, 'for call type:', event.call_type);
 
     // Make call
     const callSid = await twilioClient.makeCall(context, event.phone_number, twimlUrl);
@@ -67,10 +69,12 @@ exports.handler = async function(context, event, callback) {
 
     return callback(null, response);
   } catch (error) {
-    // Log error server-side only
+    // Log detailed error server-side only
     console.error('Error making call:', {
+      message: error.message,
       code: error.code,
-      status: error.status
+      status: error.status,
+      details: error.details || error.moreInfo
     });
 
     // Return generic error message to client
