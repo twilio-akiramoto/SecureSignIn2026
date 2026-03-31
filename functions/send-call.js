@@ -6,31 +6,53 @@
 exports.handler = async function(context, event, callback) {
   const response = new Twilio.Response();
   response.appendHeader('Content-Type', 'application/json');
-  response.appendHeader('Access-Control-Allow-Origin', '*');
+
+  // Secure CORS: Allow same-origin or configured domains only
+  const origin = event.request?.headers?.origin || event.request?.headers?.referer;
+  const allowedOrigins = context.ALLOWED_ORIGINS
+    ? context.ALLOWED_ORIGINS.split(',')
+    : [];
+
+  // Allow same domain (Twilio Functions domain)
+  if (origin && (origin.includes('.twil.io') || allowedOrigins.includes(origin))) {
+    response.appendHeader('Access-Control-Allow-Origin', origin);
+    response.appendHeader('Access-Control-Allow-Methods', 'POST, OPTIONS');
+    response.appendHeader('Access-Control-Allow-Headers', 'Content-Type');
+  }
 
   try {
     // Validate inputs
-    if (!event.call_type) {
-      throw new Error('Missing required parameter: call_type');
+    const validCallTypes = ['order-confirmation', 'fraud-alert'];
+    if (!event.call_type || !validCallTypes.includes(event.call_type)) {
+      response.setStatusCode(400);
+      response.setBody({
+        success: false,
+        message: 'Invalid call type'
+      });
+      return callback(null, response);
     }
-    if (!event.phone_number) {
-      throw new Error('Missing required parameter: phone_number');
+
+    if (!event.phone_number || !/^\+[1-9]\d{1,14}$/.test(event.phone_number)) {
+      response.setStatusCode(400);
+      response.setBody({
+        success: false,
+        message: 'Invalid phone number'
+      });
+      return callback(null, response);
     }
 
     // Load Twilio helper
     const twilioClient = require(Runtime.getFunctions()['helpers/twilio-client'].path);
 
-    // Determine TwiML URL based on call type
-    let twimlUrl;
-    if (event.call_type === 'order-confirmation') {
-      // Placeholder TwiML URL - can be replaced with custom TwiML endpoint
-      twimlUrl = 'https://demo.twilio.com/docs/voice.xml';
-      // Alternative: Use environment variable like context.TWIML_ORDER_CONFIRMATION_URL
-    } else if (event.call_type === 'fraud-alert') {
-      // Fraud alert TwiML bin
-      twimlUrl = 'https://handler.twilio.com/twiml/EH80b05ba088ad47b84e99f253563c602e';
-    } else {
-      throw new Error(`Invalid call_type: ${event.call_type}`);
+    // Get TwiML URL from environment variables (secure)
+    const twimlUrls = {
+      'order-confirmation': context.TWIML_ORDER_CONFIRMATION_URL,
+      'fraud-alert': context.TWIML_FRAUD_ALERT_URL
+    };
+
+    const twimlUrl = twimlUrls[event.call_type];
+    if (!twimlUrl) {
+      throw new Error('TwiML URL not configured');
     }
 
     // Make call
@@ -45,11 +67,17 @@ exports.handler = async function(context, event, callback) {
 
     return callback(null, response);
   } catch (error) {
-    console.error('Error making call:', error);
+    // Log error server-side only
+    console.error('Error making call:', {
+      code: error.code,
+      status: error.status
+    });
+
+    // Return generic error message to client
     response.setStatusCode(500);
     response.setBody({
       success: false,
-      message: error.message || 'Failed to initiate call'
+      message: 'Unable to initiate call. Please try again.'
     });
 
     return callback(null, response);

@@ -7,14 +7,41 @@
 exports.handler = async function(context, event, callback) {
   const response = new Twilio.Response();
   response.appendHeader('Content-Type', 'application/json');
-  response.appendHeader('Access-Control-Allow-Origin', '*');
+
+  // Secure CORS: Allow same-origin or configured domains only
+  const origin = event.request?.headers?.origin || event.request?.headers?.referer;
+  const allowedOrigins = context.ALLOWED_ORIGINS
+    ? context.ALLOWED_ORIGINS.split(',')
+    : [];
+
+  // Allow same domain (Twilio Functions domain)
+  if (origin && (origin.includes('.twil.io') || allowedOrigins.includes(origin))) {
+    response.appendHeader('Access-Control-Allow-Origin', origin);
+    response.appendHeader('Access-Control-Allow-Methods', 'POST, OPTIONS');
+    response.appendHeader('Access-Control-Allow-Headers', 'Content-Type');
+  }
 
   try {
     const twilioClient = require(Runtime.getFunctions()['helpers/twilio-client'].path);
 
     // Validate input
     if (!event.mobile_number) {
-      throw new Error('Missing required parameter: mobile_number');
+      response.setStatusCode(400);
+      response.setBody({
+        valid: false,
+        message: 'Phone number is required'
+      });
+      return callback(null, response);
+    }
+
+    // Basic phone format validation (E.164)
+    if (!/^\+[1-9]\d{1,14}$/.test(event.mobile_number)) {
+      response.setStatusCode(400);
+      response.setBody({
+        valid: false,
+        message: 'Invalid phone number format'
+      });
+      return callback(null, response);
     }
 
     // Send verification code (includes rate limiting)
@@ -41,12 +68,17 @@ exports.handler = async function(context, event, callback) {
 
     return callback(null, response);
   } catch (error) {
-    console.error('Verify endpoint error:', error);
+    // Log error server-side only
+    console.error('Verify endpoint error:', {
+      code: error.code,
+      status: error.status
+    });
 
-    response.setStatusCode(200);
+    // Return generic error message to client
+    response.setStatusCode(500);
     response.setBody({
       valid: false,
-      message: error.message || 'Failed to send verification code'
+      message: 'Unable to send verification code. Please try again.'
     });
 
     return callback(null, response);
