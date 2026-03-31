@@ -1,0 +1,4 @@
+{
+  "functionsEnv": ".env",
+  "includeCredentials": true
+}
